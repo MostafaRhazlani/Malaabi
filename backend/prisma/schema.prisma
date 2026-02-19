@@ -1,0 +1,69 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// ///////////////////////////////////////////////////
+/// ///////////////// USER MODEL //////////////////////
+/// ///////////////////////////////////////////////////
+model User {
+  id            String       @id @default(uuid())
+  first_name    String
+  last_name     String
+  phone         String?
+  birth_date    DateTime?
+  gender        Gender?
+  profile_img   String?
+  position      Position?
+  email         String       @unique
+  password      String?
+  role          Role
+  status        UserStatus   @default(ACTIVE)
+  provider      AuthProvider @default(LOCAL)
+  providerId    String?
+  managerId     String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  manager       User?        @relation("ManagerGuards", fields: [managerId], references: [id])
+  createdGuards User[]       @relation("ManagerGuards")
+
+  @@map("users")
+}
+
+/// ///////////////////////////////////////////////////
+/// ///////////////////// ENUMS ///////////////////////
+/// ///////////////////////////////////////////////////
+enum Role {
+  ADMIN
+  MANAGER
+  GUARD
+  PLAYER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum AuthProvider {
+  LOCAL
+  PROVIDER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Position {
+  GK
+  DEF
+  MID
+  FWD
+}
