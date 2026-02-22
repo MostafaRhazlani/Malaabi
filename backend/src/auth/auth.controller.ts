@@ -1,19 +1,33 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Req, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Res,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login-dto';
 import type { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenPayload } from './interfaces/auth-interface';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly jwtService: JwtService
-  ) { }
+    private readonly jwtService: JwtService,
+  ) {}
 
-  private setCookies(response: Response, access_token: string, refresh_token: string) {
+  private setCookies(
+    response: Response,
+    access_token: string,
+    refresh_token: string,
+  ) {
     response.cookie('access_token', access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -32,10 +46,17 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
-  @ApiResponse({ status: 200, description: 'Return JWT token in httpOnly cookie.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return JWT token in httpOnly cookie.',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response) {
-    const { access_token, refresh_token, user, message } = await this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token, user, message } =
+      await this.authService.login(loginDto);
 
     this.setCookies(response, access_token, refresh_token);
 
@@ -47,23 +68,30 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh JWT token' })
   @ApiResponse({ status: 200, description: 'Return new JWT tokens.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async refreshTokens(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-    const refreshToken = request.cookies['refresh_token'];
+  async refreshTokens(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const refreshToken = request.cookies['refresh_token'] as string | undefined;
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token missing');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET,
-      });
+      const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
+
       const userId = payload.sub;
-      const { access_token, refresh_token } = await this.authService.refreshTokens(userId, refreshToken);
-      console.log(access_token, refresh_token);
+      const { access_token, refresh_token } =
+        await this.authService.refreshTokens(userId, refreshToken);
       this.setCookies(response, access_token, refresh_token);
 
       return { message: 'Tokens refreshed properly' };
-    } catch (e) {
+    } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
@@ -71,15 +99,24 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User logout' })
-  @ApiResponse({ status: 200, description: 'Logout successful and cookies cleared.' })
-  async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-    const refreshToken = request.cookies['refresh_token'];
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful and cookies cleared.',
+  })
+  async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const refreshToken = request.cookies['refresh_token'] as string | undefined;
 
     if (refreshToken) {
       try {
-        const payload = await this.jwtService.verifyAsync(refreshToken, {
-          secret: process.env.JWT_REFRESH_SECRET,
-        });
+        const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+          refreshToken,
+          {
+            secret: process.env.JWT_REFRESH_SECRET,
+          },
+        );
         await this.authService.logout(payload.sub);
       } catch (e) {
         console.log(e);
