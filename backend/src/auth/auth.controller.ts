@@ -67,4 +67,28 @@ export class AuthController {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'User logout' })
+  @ApiResponse({ status: 200, description: 'Logout successful and cookies cleared.' })
+  async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+    const refreshToken = request.cookies['refresh_token'];
+
+    if (refreshToken) {
+      try {
+        const payload = await this.jwtService.verifyAsync(refreshToken, {
+          secret: process.env.JWT_REFRESH_SECRET,
+        });
+        await this.authService.logout(payload.sub);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    response.clearCookie('access_token');
+    response.clearCookie('refresh_token');
+
+    return { message: 'Logged out successfully' };
+  }
 }
