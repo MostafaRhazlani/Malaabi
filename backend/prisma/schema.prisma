@@ -54,7 +54,8 @@ enum UserStatus {
 
 enum AuthProvider {
   LOCAL
-  PROVIDER
+  GOOGLE
+  FACEBOOK
 }
 
 enum Gender {

@@ -1,6 +1,8 @@
 import {
   Controller,
   Post,
+  Get,
+  UseGuards,
   Body,
   HttpCode,
   HttpStatus,
@@ -8,6 +10,7 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login-dto';
@@ -127,5 +130,33 @@ export class AuthController {
     response.clearCookie('refresh_token');
 
     return { message: 'Logged out successfully' };
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google login' })
+  googleAuth() {
+    return { message: 'Google authentication' };
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google login callback' })
+  googleAuthRedirect(@Req() request: Request) {
+    return request.user;
+  }
+
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Facebook login' })
+  facebookAuth() {
+    return { message: 'Facebook authentication' };
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Facebook login callback' })
+  facebookAuthRedirect(@Req() request: Request) {
+    return request.user;
   }
 }
