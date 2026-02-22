@@ -3,6 +3,7 @@ import { UserRepository } from '../user/user.repository';
 import { LoginDto } from './dtos/login-dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { OAuthProfile } from './interfaces/oauth-profile-interface';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +12,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async getTokens(userId: string, email: string, role: string) {
+  async getTokens(userId: string, email: string | null, role: string) {
     const payload = { sub: userId, email, role };
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -81,5 +82,22 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.userRepository.updateRefreshToken(userId, null);
+  }
+
+  async validateOAuthLogin(profile: OAuthProfile) {
+    if (!profile.providerId) {
+      throw new UnauthorizedException(
+        'Provider ID is required from OAuth provider',
+      );
+    }
+
+    return this.userRepository.upsertOAuthUser({
+      provider: profile.provider,
+      email: profile.email,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      providerId: profile.providerId,
+      picture: profile.picture,
+    });
   }
 }

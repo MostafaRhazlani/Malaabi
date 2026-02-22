@@ -17,6 +17,7 @@ import { LoginDto } from './dtos/login-dto';
 import type { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenPayload } from './interfaces/auth-interface';
+import { OAuthProfile } from './interfaces/oauth-profile-interface';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -142,8 +143,17 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Google login callback' })
-  googleAuthRedirect(@Req() request: Request) {
-    return request.user;
+  async googleAuthRedirect(@Req() request: Request & { user: OAuthProfile }) {
+    const user = await this.authService.validateOAuthLogin(request.user);
+
+    return {
+      message: 'Google login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 
   @Get('facebook')
@@ -156,7 +166,16 @@ export class AuthController {
   @Get('facebook/callback')
   @UseGuards(AuthGuard('facebook'))
   @ApiOperation({ summary: 'Facebook login callback' })
-  facebookAuthRedirect(@Req() request: Request) {
-    return request.user;
+  async facebookAuthRedirect(@Req() request: Request & { user: OAuthProfile }) {
+    const user = await this.authService.validateOAuthLogin(request.user);
+
+    return {
+      message: 'Facebook login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 }
