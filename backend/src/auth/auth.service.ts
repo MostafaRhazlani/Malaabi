@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { LoginDto } from './dtos/login-dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,10 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
+        const isPasswordValid = await bcrypt.compare(loginDto.password, user.password || '');
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
 
         return {
             message: 'User found',
