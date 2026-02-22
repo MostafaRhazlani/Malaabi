@@ -10,4 +10,17 @@ export class UserRepository {
             where: { email },
         });
     }
+
+    async findById(id: string) {
+        return this.prisma.user.findUnique({
+            where: { id },
+        });
+    }
+
+    async updateRefreshToken(id: string, refreshToken: string | null) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { refresh_token: refreshToken },
+        });
+    }
 }

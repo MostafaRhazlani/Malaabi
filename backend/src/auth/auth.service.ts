@@ -11,6 +11,27 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) { }
 
+    async getTokens(userId: string, email: string, role: string) {
+        const payload = { sub: userId, email, role };
+        const [access_token, refresh_token] = await Promise.all([
+            this.jwtService.signAsync(payload, {
+                secret: process.env.JWT_SECRET,
+                expiresIn: '15m',
+            }),
+            this.jwtService.signAsync(payload, {
+                secret: process.env.JWT_REFRESH_SECRET,
+                expiresIn: '7d',
+            }),
+        ]);
+
+        return { access_token, refresh_token };
+    }
+
+    async updateRefreshTokenHash(userId: string, refreshToken: string) {
+        const hash = await bcrypt.hash(refreshToken, 10);
+        await this.userRepository.updateRefreshToken(userId, hash);
+    }
+
     async login(loginDto: LoginDto) {
         const user = await this.userRepository.findByEmail(loginDto.email);
         if (!user) {
@@ -22,8 +43,8 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const payload = { sub: user.id, email: user.email, role: user.role };
-        const access_token = await this.jwtService.signAsync(payload);
+        const tokens = await this.getTokens(user.id, user.email, user.role);
+        await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
         return {
             message: 'User found',
@@ -33,7 +54,24 @@ export class AuthService {
                 full_name: `${user.first_name} ${user.last_name}`,
                 role: user.role,
             },
-            access_token,
+            ...tokens,
         };
     }
+
+    async refreshTokens(userId: string, refreshToken: string) {
+        const user = await this.userRepository.findById(userId);
+        if (!user || !user.refresh_token) {
+            throw new UnauthorizedException('Access Denied');
+        }
+
+        const rtMatches = await bcrypt.compare(refreshToken, user.refresh_token);
+        if (!rtMatches) {
+            throw new UnauthorizedException('Access Denied');
+        }
+
+        const tokens = await this.getTokens(user.id, user.email, user.role);
+        await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+        return tokens;
+    }
 }
+
