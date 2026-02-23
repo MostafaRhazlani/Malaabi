@@ -20,20 +20,32 @@ model User {
   gender        Gender?
   profile_img   String?
   position      Position?
-  email         String       @unique
+  email         String?      @unique
   password      String?
   refresh_token String?
   role          Role
   status        UserStatus   @default(ACTIVE)
-  provider      AuthProvider @default(LOCAL)
-  providerId    String?
   managerId     String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  manager       User?        @relation("ManagerGuards", fields: [managerId], references: [id])
-  createdGuards User[]       @relation("ManagerGuards")
+  manager       User?          @relation("ManagerGuards", fields: [managerId], references: [id])
+  createdGuards User[]         @relation("ManagerGuards")
+  oauthAccounts OAuthAccount[]
 
   @@map("users")
+}
+
+model OAuthAccount {
+  id         String       @id @default(uuid())
+  provider   AuthProvider
+  providerId String
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@unique([provider, providerId])
+  @@map("oauth_accounts")
 }
 
 /// ///////////////////////////////////////////////////
@@ -54,7 +66,8 @@ enum UserStatus {
 
 enum AuthProvider {
   LOCAL
-  PROVIDER
+  GOOGLE
+  FACEBOOK
 }
 
 enum Gender {

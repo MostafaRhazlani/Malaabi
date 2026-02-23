@@ -1,6 +1,8 @@
 import {
   Controller,
   Post,
+  Get,
+  UseGuards,
   Body,
   HttpCode,
   HttpStatus,
@@ -8,12 +10,14 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login-dto';
 import type { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenPayload } from './interfaces/auth-interface';
+import { OAuthProfile } from './interfaces/oauth-profile-interface';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -127,5 +131,47 @@ export class AuthController {
     response.clearCookie('refresh_token');
 
     return { message: 'Logged out successfully' };
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google login' })
+  googleAuth() {
+    return { message: 'Google authentication' };
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google login callback' })
+  async googleAuthRedirect(
+    @Req() request: Request & { user: OAuthProfile },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token, user, message } =
+      await this.authService.validateOAuthLogin(request.user);
+
+    this.setCookies(response, access_token, refresh_token);
+    return { message, user };
+  }
+
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Facebook login' })
+  facebookAuth() {
+    return { message: 'Facebook authentication' };
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Facebook login callback' })
+  async facebookAuthRedirect(
+    @Req() request: Request & { user: OAuthProfile },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token, user, message } =
+      await this.authService.validateOAuthLogin(request.user);
+
+    this.setCookies(response, access_token, refresh_token);
+    return { message, user };
   }
 }
