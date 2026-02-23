@@ -91,7 +91,7 @@ export class AuthService {
       );
     }
 
-    return this.userRepository.upsertOAuthUser({
+    const userResult = await this.userRepository.upsertOAuthUser({
       provider: profile.provider,
       email: profile.email,
       firstName: profile.firstName,
@@ -99,5 +99,22 @@ export class AuthService {
       providerId: profile.providerId,
       picture: profile.picture,
     });
+
+    const tokens = await this.getTokens(
+      userResult.id,
+      userResult.email,
+      userResult.role,
+    );
+    await this.updateRefreshTokenHash(userResult.id, tokens.refresh_token);
+
+    return {
+      message: `${profile.provider} login successful`,
+      user: {
+        id: userResult.id,
+        email: userResult.email,
+        role: userResult.role,
+      },
+      ...tokens,
+    };
   }
 }

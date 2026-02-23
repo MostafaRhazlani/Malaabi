@@ -143,17 +143,15 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Google login callback' })
-  async googleAuthRedirect(@Req() request: Request & { user: OAuthProfile }) {
-    const user = await this.authService.validateOAuthLogin(request.user);
+  async googleAuthRedirect(
+    @Req() request: Request & { user: OAuthProfile },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token, user, message } =
+      await this.authService.validateOAuthLogin(request.user);
 
-    return {
-      message: 'Google login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    this.setCookies(response, access_token, refresh_token);
+    return { message, user };
   }
 
   @Get('facebook')
@@ -166,16 +164,14 @@ export class AuthController {
   @Get('facebook/callback')
   @UseGuards(AuthGuard('facebook'))
   @ApiOperation({ summary: 'Facebook login callback' })
-  async facebookAuthRedirect(@Req() request: Request & { user: OAuthProfile }) {
-    const user = await this.authService.validateOAuthLogin(request.user);
+  async facebookAuthRedirect(
+    @Req() request: Request & { user: OAuthProfile },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token, user, message } =
+      await this.authService.validateOAuthLogin(request.user);
 
-    return {
-      message: 'Facebook login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    this.setCookies(response, access_token, refresh_token);
+    return { message, user };
   }
 }
