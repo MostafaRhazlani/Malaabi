@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from 'generated/prisma/enums';
-import { OAuthProfile } from 'src/auth/interfaces/oauth-profile-interface';
+import { OAuthProfile } from 'src/auth/interfaces/oauth-profile.interface';
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
