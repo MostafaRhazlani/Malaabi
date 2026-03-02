@@ -7,6 +7,12 @@ export const AuthService = {
         return response.data;
     },
 
+    // Auth Logout
+    logout: async () => {
+        const response = await api.post('/auth/logout');
+        return response.data;
+    },
+
     // Auth Me
     getMe: async () => {
         const response = await api.get('/auth/me');

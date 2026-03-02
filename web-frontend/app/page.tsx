@@ -3,8 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "../services/auth/apis";
+import { Button } from "../components/ui/Button";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setUser } from "../store/slices/authSlice";
+import { setUser, clearUser } from "../store/slices/authSlice";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -24,6 +25,16 @@ export default function Home() {
     fetchUser();
   }, [dispatch, router]);
 
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+      dispatch(clearUser());
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -41,6 +52,9 @@ export default function Home() {
         <p className="text-sm text-slate-400">Email: {user?.email}</p>
         <p className="text-sm text-slate-400">Role: {user?.role}</p>
 
+        <Button onClick={handleLogout} className="mt-8 bg-red-600 hover:bg-red-500">
+          Log Out
+        </Button>
       </div>
     </div>
   );
