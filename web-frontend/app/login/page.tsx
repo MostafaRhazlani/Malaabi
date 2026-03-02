@@ -3,21 +3,33 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import MalaabiLogo from "@/public/malaabi-logo.png";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
+import { AuthService } from "../../services/auth/apis";
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
+    const [error, setError] = useState("");
+    const router = useRouter();
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
         setIsLoading(true);
-        setTimeout(() => {
+
+        try {
+            await AuthService.login(email, password);
+            router.push("/");
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.message || "Something went wrong.");
+        } finally {
             setIsLoading(false);
-            console.log("Login submitted", { email, password });
-        }, 1000);
+        }
     };
 
     return (
@@ -54,6 +66,12 @@ export default function LoginPage() {
                             placeholder="••••••••"
                             required
                         />
+
+                        {error && (
+                            <p className="text-sm text-red-400 font-medium text-center">
+                                {error}
+                            </p>
+                        )}
 
                         <Button type="submit" isLoading={isLoading}>
                             {isLoading ? "Signing in..." : "Sign In"}
