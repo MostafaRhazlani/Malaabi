@@ -4,8 +4,7 @@ export interface RefreshTokenPayload {
   sub: string;
 }
 
-export interface AccessTokenPayload {
-  sub: string;
+export interface AccessTokenPayload extends RefreshTokenPayload {
   email: string;
   role: Role;
 }

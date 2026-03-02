@@ -16,8 +16,13 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login-dto';
 import type { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshTokenPayload } from './interfaces/auth-interface';
-import { OAuthProfile } from './interfaces/oauth-profile-interface';
+import { RefreshTokenPayload } from './interfaces/auth.interface';
+import { OAuthProfile } from './interfaces/oauth-profile.interface';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { RolesGuard } from './guards/roles.guard';
+import { Roles } from './decorators/roles.decorator';
+import { Role } from 'generated/prisma/enums';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -131,6 +136,16 @@ export class AuthController {
     response.clearCookie('refresh_token');
 
     return { message: 'Logged out successfully' };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PLAYER)
+  @ApiOperation({ summary: 'Get current authenticated user' })
+  @ApiResponse({ status: 200, description: 'Return current user info.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  getMe(@Req() request: Request & { user: AuthenticatedUser }) {
+    return { user: request.user };
   }
 
   @Get('google')

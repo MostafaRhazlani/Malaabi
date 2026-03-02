@@ -3,7 +3,7 @@ import { UserRepository } from '../user/user.repository';
 import { LoginDto } from './dtos/login-dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { OAuthProfile } from './interfaces/oauth-profile-interface';
+import { OAuthProfile } from './interfaces/oauth-profile.interface';
 
 @Injectable()
 export class AuthService {
@@ -56,7 +56,7 @@ export class AuthService {
     return {
       message: 'User found',
       user: {
-        id: user.id,
+        user_id: user.id,
         email: user.email,
         role: user.role,
       },
@@ -110,7 +110,7 @@ export class AuthService {
     return {
       message: `${profile.provider} login successful`,
       user: {
-        id: userResult.id,
+        user_id: userResult.id,
         email: userResult.email,
         role: userResult.role,
       },
