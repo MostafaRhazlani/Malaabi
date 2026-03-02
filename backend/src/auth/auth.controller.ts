@@ -20,6 +20,9 @@ import { RefreshTokenPayload } from './interfaces/auth.interface';
 import { OAuthProfile } from './interfaces/oauth-profile.interface';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { RolesGuard } from './guards/roles.guard';
+import { Roles } from './decorators/roles.decorator';
+import { Role } from 'generated/prisma/enums';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -136,7 +139,8 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PLAYER)
   @ApiOperation({ summary: 'Get current authenticated user' })
   @ApiResponse({ status: 200, description: 'Return current user info.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
