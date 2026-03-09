@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from 'generated/prisma/enums';
-import { OAuthProfile } from 'src/auth/interfaces/oauth-profile.interface';
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
@@ -26,34 +25,19 @@ export class UserRepository {
     });
   }
 
-  async upsertOAuthUser(profile: OAuthProfile) {
-    const existingAccount = await this.prisma.oAuthAccount.findUnique({
-      where: {
-        provider_providerId: {
-          provider: profile.provider,
-          providerId: profile.providerId,
-        },
-      },
-      include: { user: true },
-    });
-
-    if (existingAccount) {
-      return existingAccount.user;
-    }
-
+  async createUser(data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }) {
     return this.prisma.user.create({
       data: {
-        email: null,
-        first_name: profile.firstName ?? '',
-        last_name: profile.lastName ?? '',
-        profile_img: profile.picture ?? null,
+        email: data.email,
+        password: data.password,
+        first_name: data.firstName,
+        last_name: data.lastName,
         role: Role.PLAYER,
-        oauthAccounts: {
-          create: {
-            provider: profile.provider,
-            providerId: profile.providerId,
-          },
-        },
       },
     });
   }
