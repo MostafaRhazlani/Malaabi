@@ -17,29 +17,46 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { AuthService } from "@/services/auth.service";
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleRegister = async () => {
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
       setError("Please fill in all fields");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const role = await AuthService.login(email.trim(), password);
+      const role = await AuthService.register(
+        firstName.trim(),
+        lastName.trim(),
+        email.trim(),
+        password,
+      );
       if (role === null) {
-        setError("Login failed. Please try again.");
+        setError("Registration failed. Please try again.");
       } else if (role !== "PLAYER") {
         await AuthService.logout();
         setError("Access denied. Only players can access this app.");
@@ -49,7 +66,7 @@ export default function LoginScreen() {
     } catch (e: unknown) {
       const res = (e as { response?: { data?: { message?: string | string[] } } })?.response?.data;
       const msg = res?.message;
-      setError(Array.isArray(msg) ? msg[0] : (msg ?? "Invalid email or password"));
+      setError(Array.isArray(msg) ? msg[0] : (msg ?? "Registration failed. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -77,10 +94,10 @@ export default function LoginScreen() {
               </View>
 
               <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
-                Welcome back
+                Create Account
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-base">
-                Please enter your details to sign in.
+                Please enter your details to sign up.
               </Text>
             </View>
 
@@ -109,15 +126,40 @@ export default function LoginScreen() {
               <View className="flex-1 h-[1px] bg-gray-200 dark:bg-gray-800" />
             </View>
 
-            {/* Inputs */}
-            <View className="w-full gap-4">
+            {/* Inputs Form */}
+            <View className="w-full gap-4 mb-8">
               {error && (
                 <Text className="text-red-500 text-center text-sm">{error}</Text>
               )}
 
-              <View className="w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900">
+              <View className="flex-row gap-4 w-full h-[56px]">
+                <View className="flex-1 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 justify-center">
+                  <TextInput
+                    className="px-5 text-[15px] text-gray-900 dark:text-white"
+                    placeholder="First Name"
+                    placeholderTextColor="#9CA3AF"
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    autoCapitalize="words"
+                    autoComplete="given-name"
+                  />
+                </View>
+                <View className="flex-1 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 justify-center">
+                  <TextInput
+                    className="px-5 text-[15px] text-gray-900 dark:text-white"
+                    placeholder="Last Name"
+                    placeholderTextColor="#9CA3AF"
+                    value={lastName}
+                    onChangeText={setLastName}
+                    autoCapitalize="words"
+                    autoComplete="family-name"
+                  />
+                </View>
+              </View>
+
+              <View className="w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 justify-center">
                 <TextInput
-                  className="flex-1 px-5 text-[15px] text-gray-900 dark:text-white"
+                  className="px-5 text-[15px] text-gray-900 dark:text-white"
                   placeholder="Enter your email..."
                   placeholderTextColor="#9CA3AF"
                   value={email}
@@ -136,10 +178,9 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
-                  autoComplete="password"
+                  autoComplete="new-password"
                   style={{
                     letterSpacing: !showPassword && password.length > 0 ? 5 : 0,
-                    // Fix iOS password dot alignment
                     paddingTop: Platform.OS === 'ios' ? 0 : undefined
                   }}
                 />
@@ -147,30 +188,31 @@ export default function LoginScreen() {
                   <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={22} color="#6B7280" />
                 </TouchableOpacity>
               </View>
-            </View>
 
-            {/* Options */}
-            <View className="flex-row justify-between w-full my-6 items-center px-1">
-              <TouchableOpacity
-                className="flex-row items-center gap-2"
-                onPress={() => setRememberMe(!rememberMe)}
-                activeOpacity={0.7}
-              >
-                <View className={`w-[20px] h-[20px] rounded-[6px] border items-center justify-center flex
-                  ${rememberMe ? 'bg-primary-500 border-primary-500' : 'bg-transparent border-gray-300 dark:border-gray-700'}`}>
-                  {rememberMe && <Ionicons name="checkmark" size={14} color="white" />}
-                </View>
-                <Text className="text-gray-900 dark:text-white font-medium text-[15px]">Remember me</Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text className="text-gray-900 dark:text-white font-semibold text-[15px] underline">Forgot password?</Text>
-              </TouchableOpacity>
+              <View className="flex-row items-center w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 px-5">
+                <TextInput
+                  className="flex-1 text-[15px] text-gray-900 dark:text-white pb-1"
+                  placeholder="Confirm Password"
+                  placeholderTextColor="#9CA3AF"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                  autoComplete="new-password"
+                  style={{
+                    letterSpacing: !showConfirmPassword && confirmPassword.length > 0 ? 5 : 0,
+                    paddingTop: Platform.OS === 'ios' ? 0 : undefined
+                  }}
+                />
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} className="ml-2">
+                  <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={22} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Action */}
             <TouchableOpacity
               className="w-full h-[56px] bg-[#111111] dark:bg-white rounded-2xl items-center justify-center mb-8 shadow-sm"
-              onPress={handleLogin}
+              onPress={handleRegister}
               activeOpacity={0.8}
               disabled={loading}
             >
@@ -178,7 +220,7 @@ export default function LoginScreen() {
                 <ActivityIndicator color={isDark ? "black" : "white"} size="small" />
               ) : (
                 <Text className="text-white dark:text-black text-[16px] font-semibold">
-                  Sign in
+                  Sign up
                 </Text>
               )}
             </TouchableOpacity>
@@ -186,10 +228,10 @@ export default function LoginScreen() {
             {/* Footer */}
             <View className="flex-row justify-center items-center">
               <Text className="text-gray-500 dark:text-gray-400 text-[15px]">
-                Don&apos;t have an account yet?{" "}
+                Already have an account?{" "}
               </Text>
-              <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
-                <Text className="text-black dark:text-white font-bold text-[15px]">Sign Up</Text>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Text className="text-black dark:text-white font-bold text-[15px]">Sign In</Text>
               </TouchableOpacity>
             </View>
 

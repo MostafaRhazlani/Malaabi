@@ -1,9 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { LoginDto } from './dtos/login-dto';
+import { RegisterDto } from './dtos/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { OAuthProfile } from './interfaces/oauth-profile.interface';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +38,25 @@ export class AuthService {
   async updateRefreshTokenHash(userId: string, refreshToken: string) {
     const hash = await bcrypt.hash(refreshToken, 10);
     await this.userRepository.updateRefreshToken(userId, hash);
+  }
+
+  async register(dto: RegisterDto) {
+    const existing = await this.userRepository.findByEmail(dto.email);
+    if (existing) throw new ConflictException('Email already in use');
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const user = await this.userRepository.createUser({
+      email: dto.email,
+      password: hashedPassword,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+    });
+    const tokens = await this.getTokens(user.id, user.email, user.role);
+    await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+    return {
+      message: 'User registered successfully',
+      user: { user_id: user.id, email: user.email, role: user.role },
+      ...tokens,
+    };
   }
 
   async login(loginDto: LoginDto) {
@@ -82,39 +105,5 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.userRepository.updateRefreshToken(userId, null);
-  }
-
-  async validateOAuthLogin(profile: OAuthProfile) {
-    if (!profile.providerId) {
-      throw new UnauthorizedException(
-        'Provider ID is required from OAuth provider',
-      );
-    }
-
-    const userResult = await this.userRepository.upsertOAuthUser({
-      provider: profile.provider,
-      email: profile.email,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      providerId: profile.providerId,
-      picture: profile.picture,
-    });
-
-    const tokens = await this.getTokens(
-      userResult.id,
-      userResult.email,
-      userResult.role,
-    );
-    await this.updateRefreshTokenHash(userResult.id, tokens.refresh_token);
-
-    return {
-      message: `${profile.provider} login successful`,
-      user: {
-        user_id: userResult.id,
-        email: userResult.email,
-        role: userResult.role,
-      },
-      ...tokens,
-    };
   }
 }

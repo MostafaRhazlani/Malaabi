@@ -1,19 +1,36 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthService } from '@/services/auth.service';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
+
+  const LogoutButton = () => (
+    <TouchableOpacity
+      onPress={async () => {
+        await AuthService.logout();
+        router.replace('/(auth)/login');
+      }}
+      style={styles.logoutButton}
+    >
+      <Text style={styles.logoutText}>Logout</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
+        headerShown: true,
+        headerShadowVisible: false,
+        headerRight: () => <LogoutButton />,
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
@@ -33,3 +50,14 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  logoutButton: {
+    marginRight: 16,
+  },
+  logoutText: {
+    color: '#EF4444',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+});

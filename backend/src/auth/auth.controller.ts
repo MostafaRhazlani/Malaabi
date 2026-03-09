@@ -10,14 +10,13 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login-dto';
+import { RegisterDto } from './dtos/register.dto';
 import type { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenPayload } from './interfaces/auth.interface';
-import { OAuthProfile } from './interfaces/oauth-profile.interface';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
@@ -49,14 +48,20 @@ export class AuthController {
     });
   }
 
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, refresh_token, user, message } =
+      await this.authService.register(registerDto);
+    this.setCookies(response, access_token, refresh_token);
+    return { message, user, access_token, refresh_token };
+  }
+
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'User login' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return JWT token in httpOnly cookie.',
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
@@ -66,19 +71,20 @@ export class AuthController {
 
     this.setCookies(response, access_token, refresh_token);
 
-    return { message, user };
+    return { message, user, access_token, refresh_token };
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh JWT token' })
-  @ApiResponse({ status: 200, description: 'Return new JWT tokens.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async refreshTokens(
     @Req() request: Request,
+    @Body('refresh_token') bodyRefreshToken: string,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const refreshToken = request.cookies['refresh_token'] as string | undefined;
+    // Accept refresh token from body (mobile) or cookie (web)
+    const refreshToken =
+      bodyRefreshToken ||
+      (request.cookies?.['refresh_token'] as string | undefined);
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token missing');
     }
@@ -96,7 +102,11 @@ export class AuthController {
         await this.authService.refreshTokens(userId, refreshToken);
       this.setCookies(response, access_token, refresh_token);
 
-      return { message: 'Tokens refreshed properly' };
+      return {
+        message: 'Tokens refreshed properly',
+        access_token,
+        refresh_token,
+      };
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -104,11 +114,6 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'User logout' })
-  @ApiResponse({
-    status: 200,
-    description: 'Logout successful and cookies cleared.',
-  })
   async logout(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -137,52 +142,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get current authenticated user' })
-  @ApiResponse({ status: 200, description: 'Return current user info.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
   getMe(@Req() request: Request & { user: AuthenticatedUser }) {
     return { user: request.user };
-  }
-
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  @ApiOperation({ summary: 'Google login' })
-  googleAuth() {
-    return { message: 'Google authentication' };
-  }
-
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  @ApiOperation({ summary: 'Google login callback' })
-  async googleAuthRedirect(
-    @Req() request: Request & { user: OAuthProfile },
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const { access_token, refresh_token, user, message } =
-      await this.authService.validateOAuthLogin(request.user);
-
-    this.setCookies(response, access_token, refresh_token);
-    return { message, user };
-  }
-
-  @Get('facebook')
-  @UseGuards(AuthGuard('facebook'))
-  @ApiOperation({ summary: 'Facebook login' })
-  facebookAuth() {
-    return { message: 'Facebook authentication' };
-  }
-
-  @Get('facebook/callback')
-  @UseGuards(AuthGuard('facebook'))
-  @ApiOperation({ summary: 'Facebook login callback' })
-  async facebookAuthRedirect(
-    @Req() request: Request & { user: OAuthProfile },
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const { access_token, refresh_token, user, message } =
-      await this.authService.validateOAuthLogin(request.user);
-
-    this.setCookies(response, access_token, refresh_token);
-    return { message, user };
   }
 }
