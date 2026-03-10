@@ -8,10 +8,9 @@ import ClientOnly from "@/components/ClientOnly";
 import {
   RiDashboardLine,
   RiGroupLine,
-  RiBarChartLine,
-  RiSettings4Line,
   RiCalendarLine,
   RiBriefcaseLine,
+  RiBuilding2Line,
 } from "@remixicon/react";
 
 const NAV_ITEMS: Record<
@@ -21,8 +20,7 @@ const NAV_ITEMS: Record<
   ADMIN: [
     { label: "Overview", href: "/dashboard/admin", icon: RiDashboardLine },
     { label: "Users", href: "/dashboard/admin/users", icon: RiGroupLine },
-    { label: "Reports", href: "/dashboard/admin/reports", icon: RiBarChartLine },
-    { label: "Settings", href: "/dashboard/admin/settings", icon: RiSettings4Line },
+    { label: "Stadiums", href: "/dashboard/admin/stadiums", icon: RiBuilding2Line },
   ],
   MANAGER: [
     { label: "Overview", href: "/dashboard/manager", icon: RiDashboardLine },

@@ -7,6 +7,13 @@ import type { AdminUser, UsersQueryParams } from "@/interfaces/users.interface";
 import type { UserRole, UserStatus } from "@/types/admin.types";
 import DataTable, { Column } from "@/components/ui/DataTable";
 import Dropdown, { DropdownOption } from "@/components/ui/Dropdown";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  setAdminUsersLoading,
+  setAdminUsers,
+  setAdminUsersError,
+  updateAdminUserStatus,
+} from "@/store/slices/adminUsersSlice";
 
 const ROLE_OPTIONS: DropdownOption<UserRole | "">[] = [
   { label: "All Roles", value: "" },
@@ -45,29 +52,26 @@ const ROLE_COLORS: Record<UserRole, string> = {
 const LIMIT = 10;
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+  const dispatch = useAppDispatch();
+  const { users, total, totalPages, status: storeStatus, error } = useAppSelector(
+    (state) => state.adminUsers
+  );
+  const loading = storeStatus === 'idle' || storeStatus === 'loading';
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<UserRole | "">("");
   const [status, setStatus] = useState<UserStatus | "">("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchUsers = useCallback((params: UsersQueryParams) => {
-    setLoading(true);
-    setError(null);
+    dispatch(setAdminUsersLoading());
     AdminService.getUsers(params)
       .then((res) => {
-        setUsers(res.data);
-        setTotal(res.total);
-        setTotalPages(res.totalPages);
+        dispatch(setAdminUsers({ users: res.data, total: res.total, totalPages: res.totalPages }));
       })
-      .catch(() => setError("Failed to load users."))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => dispatch(setAdminUsersError("Failed to load users.")));
+  }, [dispatch]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -87,9 +91,7 @@ export default function AdminUsersPage() {
 
   const handleStatusChange = async (user: AdminUser, newStatus: UserStatus) => {
     await AdminService.updateUserStatus(user.id, newStatus);
-    setUsers((prev) =>
-      prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u))
-    );
+    dispatch(updateAdminUserStatus({ id: user.id, status: newStatus }));
   };
 
   const columns: Column<AdminUser>[] = [
