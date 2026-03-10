@@ -32,7 +32,42 @@ export class StatsService {
         _sum: { totalAmount: true },
       });
 
-      return { usersByRole, totalStadiums, pendingStadiums, revenue };
+      const recentUsers = await tx.user.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      const recentBookings = await tx.booking.findMany({
+        where: { status: BookingStatus.CONFIRMED },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          totalAmount: true,
+          createdAt: true,
+          player: {
+            select: { first_name: true, last_name: true, email: true },
+          },
+          stadium: { select: { name: true, city: true } },
+        },
+      });
+
+      return {
+        usersByRole,
+        totalStadiums,
+        pendingStadiums,
+        revenue,
+        recentUsers,
+        recentBookings,
+      };
     });
 
     const typedResult = result as StatsResult;
@@ -53,6 +88,10 @@ export class StatsService {
       },
       revenue: {
         confirmedTotalAmount: typedResult.revenue._sum.totalAmount ?? 0,
+      },
+      recentActivity: {
+        users: typedResult.recentUsers,
+        bookings: typedResult.recentBookings,
       },
     };
   }

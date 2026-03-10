@@ -5,30 +5,75 @@ import {
   RiMoneyDollarCircleLine,
   RiGroupLine,
   RiBuilding2Line,
+  RiUserAddLine,
+  RiCalendarCheckLine,
 } from "@remixicon/react";
-import {
-  AdminService,
-} from "@/services/admin/apis";
+import { AdminService } from "@/services/admin/apis";
 import type { UserRole } from "@/types/admin.types";
+import type { RecentUser, RecentBooking } from "@/interfaces/stats.interface";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   setAdminStats,
   setAdminStatsError,
   setAdminStatsLoading,
 } from "@/store/slices/adminStatsSlice";
+import DataTable, { Column } from "@/components/ui/DataTable";
+
+const ROLE_COLORS: Record<UserRole, string> = {
+  ADMIN: "text-red-400 bg-red-500/10",
+  MANAGER: "text-purple-400 bg-purple-500/10",
+  GUARD: "text-yellow-400 bg-yellow-500/10",
+  PLAYER: "text-blue-400 bg-blue-500/10",
+};
+
+const recentUsersColumns: Column<RecentUser>[] = [
+  {
+    header: "Name",
+    accessor: (u) => (
+      <div>
+        <p className="text-white font-medium">{u.first_name} {u.last_name}</p>
+        <p className="text-xs text-slate-500">{u.email}</p>
+      </div>
+    ),
+  },
+  {
+    header: "Role",
+    accessor: (u) => (
+      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[u.role]}`}>
+        {u.role}
+      </span>
+    ),
+  },
+];
+
+const recentBookingsColumns: Column<RecentBooking>[] = [
+  {
+    header: "Stadium",
+    accessor: (b) => (
+      <div>
+        <p className="text-white font-medium">
+          {b.stadium.name}
+          <span className="text-slate-500 font-normal"> · {b.stadium.city}</span>
+        </p>
+        <p className="text-xs text-slate-500">{b.player.first_name} {b.player.last_name}</p>
+      </div>
+    ),
+  },
+  {
+    header: "Amount",
+    accessor: (b) => (
+      <span className="font-semibold text-green-400">${b.totalAmount.toLocaleString()}</span>
+    ),
+  },
+];
 
 export default function AdminDashboard() {
   const dispatch = useAppDispatch();
   const { stats, status, error } = useAppSelector((state) => state.adminStats);
 
   useEffect(() => {
-    // Fetch once per app session. A full page refresh resets store and fetches again.
-    if (stats || status === "loading") {
-      return;
-    }
-
+    if (stats || status === "loading") return;
     dispatch(setAdminStatsLoading());
-
     AdminService.getStats()
       .then((data) => dispatch(setAdminStats(data)))
       .catch(() => dispatch(setAdminStatsError("Failed to load admin stats.")));
@@ -36,8 +81,7 @@ export default function AdminDashboard() {
 
   const loading = (status === "idle" || status === "loading") && !stats;
 
-  const userCountByRole = (role: UserRole) =>
-    stats?.users.byRole[role] ?? 0;
+  const userCountByRole = (role: UserRole) => stats?.users.byRole[role] ?? 0;
 
   const statCards = stats
     ? [
@@ -124,8 +168,28 @@ export default function AdminDashboard() {
           ))}
         </div>
       )}
+
+      {/* Recent Activity */}
+      {!loading && !error && stats && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DataTable
+            title="Recent Users"
+            icon={RiUserAddLine}
+            columns={recentUsersColumns}
+            rows={stats.recentActivity.users}
+            getRowKey={(u) => u.id}
+            emptyMessage="No users yet."
+          />
+          <DataTable
+            title="Recent Confirmed Bookings"
+            icon={RiCalendarCheckLine}
+            columns={recentBookingsColumns}
+            rows={stats.recentActivity.bookings}
+            getRowKey={(b) => b.id}
+            emptyMessage="No confirmed bookings yet."
+          />
+        </div>
+      )}
     </div>
   );
 }
-
-
