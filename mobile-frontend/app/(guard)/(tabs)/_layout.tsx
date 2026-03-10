@@ -7,16 +7,21 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthService } from '@/services/auth.service';
+import { useAppDispatch } from '@/store/hooks';
+import { clearUser } from '@/store/slices/authSlice';
+import { ROUTES } from '@/constants/routes';
 
-export default function TabLayout() {
+export default function GuardTabsLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const LogoutButton = () => (
     <TouchableOpacity
       onPress={async () => {
+        dispatch(clearUser());
         await AuthService.logout();
-        router.replace('/(auth)/login');
+        router.replace(ROUTES.AUTH_LOGIN);
       }}
       style={styles.logoutButton}
     >
@@ -38,13 +43,6 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
     </Tabs>

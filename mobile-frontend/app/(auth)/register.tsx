@@ -16,11 +16,15 @@ import Svg, { Path } from "react-native-svg";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { AuthService } from "@/services/auth.service";
+import { useAppDispatch } from "@/store/hooks";
+import { setUser } from "@/store/slices/authSlice";
+import { ROUTES } from "@/constants/routes";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const dispatch = useAppDispatch();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -49,19 +53,20 @@ export default function RegisterScreen() {
     setLoading(true);
     setError(null);
     try {
-      const role = await AuthService.register(
+      const result = await AuthService.register(
         firstName.trim(),
         lastName.trim(),
         email.trim(),
         password,
       );
-      if (role === null) {
+      if (!result) {
         setError("Registration failed. Please try again.");
-      } else if (role !== "PLAYER") {
-        await AuthService.logout();
-        setError("Access denied. Only players can access this app.");
+      } else if (result.role === 'PLAYER') {
+        dispatch(setUser({ email: result.email, role: result.role }));
+        router.replace(ROUTES.PLAYER);
       } else {
-        router.replace("/");
+        await AuthService.logout();
+        setError("Access denied. Only players can register.");
       }
     } catch (e: unknown) {
       const res = (e as { response?: { data?: { message?: string | string[] } } })?.response?.data;

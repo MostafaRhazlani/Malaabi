@@ -1,13 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import MalaabiLogo from "@/public/malaabi-logo.png";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { AuthService } from "../../services/auth/apis";
+import { useAppDispatch } from "../../store/hooks";
+import { setUser } from "../../store/slices/authSlice";
+
+const ROLE_REDIRECT: Record<string, string> = {
+    ADMIN: "/dashboard/admin",
+    MANAGER: "/dashboard/manager",
+};
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -16,6 +22,7 @@ export default function LoginPage() {
 
     const [error, setError] = useState("");
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,9 +31,16 @@ export default function LoginPage() {
 
         try {
             await AuthService.login(email, password);
-            router.push("/");
-        } catch (err: any) {
-            setError(err.response?.data?.message || err.message || "Something went wrong.");
+            const { user } = await AuthService.getMe();
+            dispatch(setUser(user));
+            // Set a readable cookie so the proxy can enforce role-based routing server-side
+            document.cookie = `user_role=${user.role}; path=/; SameSite=Strict`;
+            const redirect = ROLE_REDIRECT[user?.role?.toUpperCase()] ?? "/";
+            router.push(redirect);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Something went wrong.";
+            const responseMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+            setError(responseMessage || message);
         } finally {
             setIsLoading(false);
         }
