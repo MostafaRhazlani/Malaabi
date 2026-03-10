@@ -15,7 +15,5 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || user?.role?.toUpperCase() !== "ADMIN") return null;
-
   return <>{children}</>;
 }
