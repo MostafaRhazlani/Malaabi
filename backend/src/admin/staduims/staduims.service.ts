@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from 'generated/prisma/client';
 import { GetStadiumsDto } from './dto/get-stadiums.dto';
+import { UpdateStadiumStatusDto } from './dto/update-stadium-status.dto';
 
 @Injectable()
 export class StaduimsService {
@@ -55,5 +56,16 @@ export class StaduimsService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  async updateStatus(id: string, dto: UpdateStadiumStatusDto) {
+    const stadium = await this.prisma.stadium.findUnique({ where: { id } });
+    if (!stadium) throw new NotFoundException('Stadium not found');
+
+    return this.prisma.stadium.update({
+      where: { id },
+      data: { status: dto.status },
+      select: { id: true, status: true },
+    });
   }
 }
