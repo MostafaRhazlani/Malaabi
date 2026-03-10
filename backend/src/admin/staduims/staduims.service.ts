@@ -68,4 +68,11 @@ export class StaduimsService {
       select: { id: true, status: true },
     });
   }
+
+  async remove(id: string) {
+    const stadium = await this.prisma.stadium.findUnique({ where: { id } });
+    if (!stadium) throw new NotFoundException('Stadium not found');
+
+    await this.prisma.stadium.delete({ where: { id } });
+  }
 }
