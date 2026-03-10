@@ -33,6 +33,8 @@ export default function LoginPage() {
             await AuthService.login(email, password);
             const { user } = await AuthService.getMe();
             dispatch(setUser(user));
+            // Set a readable cookie so the proxy can enforce role-based routing server-side
+            document.cookie = `user_role=${user.role}; path=/; SameSite=Strict`;
             const redirect = ROLE_REDIRECT[user?.role?.toUpperCase()] ?? "/";
             router.push(redirect);
         } catch (err: unknown) {

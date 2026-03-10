@@ -13,6 +13,8 @@ export default function Navbar() {
     try {
       await AuthService.logout();
       dispatch(clearUser());
+      // Clear the role cookie set on login
+      document.cookie = 'user_role=; Max-Age=0; path=/';
       window.location.replace("/login");
     } catch (error) {
       console.error("Logout failed", error);
