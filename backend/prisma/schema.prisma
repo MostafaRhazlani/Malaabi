@@ -28,10 +28,48 @@ model User {
   managerId     String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  manager       User?          @relation("ManagerGuards", fields: [managerId], references: [id])
-  createdGuards User[]         @relation("ManagerGuards")
+  manager       User?        @relation("ManagerGuards", fields: [managerId], references: [id])
+  createdGuards User[]       @relation("ManagerGuards")
+  stadiums      Stadium[]    @relation("ManagerStadiums")
+  bookings      Booking[]    @relation("PlayerBookings")
 
   @@map("users")
+}
+
+/// ///////////////////////////////////////////////////
+/// ///////////////// STADIUM MODEL ///////////////////
+/// ///////////////////////////////////////////////////
+model Stadium {
+  id        String        @id @default(uuid())
+  name      String
+  city      String
+  address   String
+  images    String[]      @default([])
+  status    StadiumStatus @default(PENDING)
+  managerId String
+  manager   User          @relation("ManagerStadiums", fields: [managerId], references: [id])
+  bookings  Booking[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("stadiums")
+}
+
+/// ///////////////////////////////////////////////////
+/// ///////////////// BOOKING MODEL ///////////////////
+/// ///////////////////////////////////////////////////
+model Booking {
+  id          String        @id @default(uuid())
+  totalAmount Float
+  status      BookingStatus @default(PENDING)
+  playerId    String
+  stadiumId   String
+  player      User          @relation("PlayerBookings", fields: [playerId], references: [id])
+  stadium     Stadium       @relation(fields: [stadiumId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("bookings")
 }
 
 /// ///////////////////////////////////////////////////
@@ -48,6 +86,18 @@ enum UserStatus {
   ACTIVE
   SUSPENDED
   BANNED
+}
+
+enum StadiumStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
 }
 
 enum Gender {
