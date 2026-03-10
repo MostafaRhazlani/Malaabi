@@ -26,7 +26,7 @@ api.interceptors.response.use(
                 await axios.post('/api/auth/refresh', {}, { withCredentials: true });
                 return api(originalRequest);
             } catch {
-                if (typeof window !== 'undefined') {
+                if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
                     window.location.href = '/login';
                 }
             }

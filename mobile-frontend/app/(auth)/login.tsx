@@ -16,11 +16,15 @@ import Svg, { Path } from "react-native-svg";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { AuthService } from "@/services/auth.service";
+import { useAppDispatch } from "@/store/hooks";
+import { setUser } from "@/store/slices/authSlice";
+import { ROUTES } from "@/constants/routes";
 
 export default function LoginScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const dispatch = useAppDispatch();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,14 +41,18 @@ export default function LoginScreen() {
     setLoading(true);
     setError(null);
     try {
-      const role = await AuthService.login(email.trim(), password);
-      if (role === null) {
+      const result = await AuthService.login(email.trim(), password);
+      if (!result) {
         setError("Login failed. Please try again.");
-      } else if (role !== "PLAYER") {
-        await AuthService.logout();
-        setError("Access denied. Only players can access this app.");
+      } else if (result.role === 'PLAYER') {
+        dispatch(setUser({ email: result.email, role: result.role }));
+        router.replace(ROUTES.PLAYER);
+      } else if (result.role === 'GUARD') {
+        dispatch(setUser({ email: result.email, role: result.role }));
+        router.replace(ROUTES.GUARD);
       } else {
-        router.replace("/");
+        await AuthService.logout();
+        setError("Access denied. Unauthorized role.");
       }
     } catch (e: unknown) {
       const res = (e as { response?: { data?: { message?: string | string[] } } })?.response?.data;
