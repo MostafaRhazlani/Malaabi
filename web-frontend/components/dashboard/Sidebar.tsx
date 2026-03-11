@@ -9,7 +9,6 @@ import {
   RiDashboardLine,
   RiGroupLine,
   RiCalendarLine,
-  RiBriefcaseLine,
   RiBuilding2Line,
 } from "@remixicon/react";
 
@@ -24,9 +23,9 @@ const NAV_ITEMS: Record<
   ],
   MANAGER: [
     { label: "Overview", href: "/dashboard/manager", icon: RiDashboardLine },
-    { label: "My Team", href: "/dashboard/manager/team", icon: RiGroupLine },
-    { label: "Schedule", href: "/dashboard/manager/schedule", icon: RiCalendarLine },
-    { label: "Reports", href: "/dashboard/manager/reports", icon: RiBriefcaseLine },
+    { label: "My Stadiums", href: "/dashboard/manager/stadiums", icon: RiBuilding2Line },
+    { label: "Guards", href: "/dashboard/manager/guards", icon: RiGroupLine },
+    { label: "Bookings", href: "/dashboard/manager/bookings", icon: RiCalendarLine },
   ],
 };
 
