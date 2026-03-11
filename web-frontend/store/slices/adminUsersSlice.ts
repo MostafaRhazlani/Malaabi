@@ -48,6 +48,10 @@ const adminUsersSlice = createSlice({
       const user = state.users.find((u) => u.id === action.payload.id);
       if (user) user.status = action.payload.status;
     },
+    removeAdminUser(state, action: PayloadAction<string>) {
+      state.users = state.users.filter((u) => u.id !== action.payload);
+      state.total = Math.max(0, state.total - 1);
+    },
   },
 });
 
@@ -56,6 +60,7 @@ export const {
   setAdminUsers,
   setAdminUsersError,
   updateAdminUserStatus,
+  removeAdminUser,
 } = adminUsersSlice.actions;
 
 export default adminUsersSlice.reducer;

@@ -1,18 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { RiGroupLine, RiSearchLine } from "@remixicon/react";
+import { RiDeleteBinLine, RiGroupLine, RiSearchLine, RiUserAddLine } from "@remixicon/react";
 import { AdminService } from "@/services/admin/apis";
 import type { AdminUser, UsersQueryParams } from "@/interfaces/users.interface";
 import type { UserRole, UserStatus } from "@/types/admin.types";
 import DataTable, { Column } from "@/components/ui/DataTable";
 import Dropdown, { DropdownOption } from "@/components/ui/Dropdown";
+import CreateManagerModal from "@/components/dashboard/CreateManagerModal";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   setAdminUsersLoading,
   setAdminUsers,
   setAdminUsersError,
   updateAdminUserStatus,
+  removeAdminUser,
 } from "@/store/slices/adminUsersSlice";
 
 const ROLE_OPTIONS: DropdownOption<UserRole | "">[] = [
@@ -56,12 +58,14 @@ export default function AdminUsersPage() {
   const { users, total, totalPages, status: storeStatus, error } = useAppSelector(
     (state) => state.adminUsers
   );
+  const currentUserId = useAppSelector((state) => state.auth.user?.user_id);
   const loading = storeStatus === 'idle' || storeStatus === 'loading';
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<UserRole | "">("");
   const [status, setStatus] = useState<UserStatus | "">("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchUsers = useCallback((params: UsersQueryParams) => {
@@ -92,6 +96,12 @@ export default function AdminUsersPage() {
   const handleStatusChange = async (user: AdminUser, newStatus: UserStatus) => {
     await AdminService.updateUserStatus(user.id, newStatus);
     dispatch(updateAdminUserStatus({ id: user.id, status: newStatus }));
+  };
+
+  const handleDelete = async (user: AdminUser) => {
+    if (!confirm(`Delete ${user.first_name} ${user.last_name}? This cannot be undone.`)) return;
+    await AdminService.deleteUser(user.id);
+    dispatch(removeAdminUser(user.id));
   };
 
   const columns: Column<AdminUser>[] = [
@@ -135,15 +145,43 @@ export default function AdminUsersPage() {
         </span>
       ),
     },
+    {
+      header: "Actions",
+      accessor: (u) => (
+        <button
+          onClick={() => handleDelete(u)}
+          className="p-1.5 rounded-md cursor-pointer text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+          title="Delete user"
+        >
+          <RiDeleteBinLine className="w-4 h-4" />
+        </button>
+      ),
+    },
   ];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Users</h1>
-        <p className="text-slate-400 text-sm mt-1">
-          {total} user{total !== 1 ? "s" : ""} total
-        </p>
+      {showCreateModal && (
+        <CreateManagerModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={() => fetchUsers({ page, limit: LIMIT, search: search || undefined, role: role || undefined, status: status || undefined })}
+        />
+      )}
+
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Users</h1>
+          <p className="text-slate-400 text-sm mt-1">
+            {total} user{total !== 1 ? "s" : ""} total
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors shrink-0"
+        >
+          <RiUserAddLine className="w-4 h-4" />
+          Create Manager
+        </button>
       </div>
 
       {/* Filters */}
