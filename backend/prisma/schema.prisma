@@ -23,15 +23,17 @@ model User {
   email         String       @unique
   password      String
   refresh_token String?
-  role          Role
-  status        UserStatus   @default(ACTIVE)
-  managerId     String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  manager       User?        @relation("ManagerGuards", fields: [managerId], references: [id])
-  createdGuards User[]       @relation("ManagerGuards")
-  stadiums      Stadium[]    @relation("ManagerStadiums")
-  bookings      Booking[]    @relation("PlayerBookings")
+  role               Role
+  status             UserStatus @default(ACTIVE)
+  managerId          String?
+  assignedStadiumId  String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  manager            User?      @relation("ManagerGuards", fields: [managerId], references: [id], onDelete: SetNull)
+  createdGuards      User[]     @relation("ManagerGuards")
+  stadiums           Stadium[]  @relation("ManagerStadiums")
+  assignedStadium    Stadium?   @relation("GuardStadium", fields: [assignedStadiumId], references: [id], onDelete: SetNull)
+  bookings           Booking[]  @relation("PlayerBookings")
 
   @@map("users")
 }
@@ -40,17 +42,20 @@ model User {
 /// ///////////////// STADIUM MODEL ///////////////////
 /// ///////////////////////////////////////////////////
 model Stadium {
-  id        String        @id @default(uuid())
-  name      String
-  city      String
-  address   String
-  images    String[]      @default([])
-  status    StadiumStatus @default(PENDING)
-  managerId String
-  manager   User          @relation("ManagerStadiums", fields: [managerId], references: [id])
-  bookings  Booking[]
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id             String        @id @default(uuid())
+  name           String
+  city           String
+  address        String
+  images         String[]      @default([])
+  status         StadiumStatus @default(PENDING)
+  priceFullMatch Float         @default(0)
+  priceHalfMatch Float         @default(0)
+  managerId      String
+  manager        User          @relation("ManagerStadiums", fields: [managerId], references: [id], onDelete: Cascade)
+  guards         User[]        @relation("GuardStadium")
+  bookings       Booking[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@map("stadiums")
 }
@@ -61,11 +66,13 @@ model Stadium {
 model Booking {
   id          String        @id @default(uuid())
   totalAmount Float
+  matchType   MatchType     @default(FULL)
+  scheduledAt DateTime?
   status      BookingStatus @default(PENDING)
   playerId    String
   stadiumId   String
-  player      User          @relation("PlayerBookings", fields: [playerId], references: [id])
-  stadium     Stadium       @relation(fields: [stadiumId], references: [id])
+  player      User          @relation("PlayerBookings", fields: [playerId], references: [id], onDelete: Cascade)
+  stadium     Stadium       @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -98,6 +105,11 @@ enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum MatchType {
+  FULL
+  HALF
 }
 
 enum Gender {
