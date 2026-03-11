@@ -8,6 +8,7 @@ import type { UserRole, UserStatus } from "@/types/admin.types";
 import DataTable, { Column } from "@/components/ui/DataTable";
 import Dropdown, { DropdownOption } from "@/components/ui/Dropdown";
 import CreateManagerModal from "@/components/dashboard/CreateManagerModal";
+import DeleteUserModal from "@/components/dashboard/DeleteUserModal";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   setAdminUsersLoading,
@@ -66,6 +67,8 @@ export default function AdminUsersPage() {
   const [role, setRole] = useState<UserRole | "">("");
   const [status, setStatus] = useState<UserStatus | "">("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchUsers = useCallback((params: UsersQueryParams) => {
@@ -98,10 +101,16 @@ export default function AdminUsersPage() {
     dispatch(updateAdminUserStatus({ id: user.id, status: newStatus }));
   };
 
-  const handleDelete = async (user: AdminUser) => {
-    if (!confirm(`Delete ${user.first_name} ${user.last_name}? This cannot be undone.`)) return;
-    await AdminService.deleteUser(user.id);
-    dispatch(removeAdminUser(user.id));
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await AdminService.deleteUser(deleteTarget.id);
+      dispatch(removeAdminUser(deleteTarget.id));
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const columns: Column<AdminUser>[] = [
@@ -149,7 +158,7 @@ export default function AdminUsersPage() {
       header: "Actions",
       accessor: (u) => (
         <button
-          onClick={() => handleDelete(u)}
+          onClick={() => setDeleteTarget(u)}
           className="p-1.5 rounded-md cursor-pointer text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
           title="Delete user"
         >
@@ -168,6 +177,15 @@ export default function AdminUsersPage() {
         />
       )}
 
+      {deleteTarget && (
+        <DeleteUserModal
+          user={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
+          loading={deleting}
+        />
+      )}
+
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Users</h1>
@@ -178,6 +196,7 @@ export default function AdminUsersPage() {
         <button
           onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors shrink-0"
+          suppressHydrationWarning
         >
           <RiUserAddLine className="w-4 h-4" />
           Create Manager
@@ -194,6 +213,7 @@ export default function AdminUsersPage() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-full bg-white/5 border border-white/10 text-white rounded-md py-2 pl-9 pr-4 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none placeholder:text-slate-500"
+            suppressHydrationWarning
           />
         </div>
 
@@ -243,6 +263,7 @@ export default function AdminUsersPage() {
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
               className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              suppressHydrationWarning
             >
               Previous
             </button>
@@ -250,6 +271,7 @@ export default function AdminUsersPage() {
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
               className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              suppressHydrationWarning
             >
               Next
             </button>

@@ -44,6 +44,7 @@ export default function Dropdown<T extends string>({
         type="button"
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-1.5"
+        suppressHydrationWarning
       >
         {renderTrigger ? (
           renderTrigger(selected)
@@ -65,6 +66,7 @@ export default function Dropdown<T extends string>({
                 className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-white/10 ${
                   option.value === value ? "text-white font-medium" : "text-slate-300"
                 }`}
+                suppressHydrationWarning
               >
                 {option.label}
               </button>

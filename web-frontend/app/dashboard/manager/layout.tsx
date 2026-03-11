@@ -15,7 +15,5 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || user?.role?.toUpperCase() !== "MANAGER") return null;
-
   return <>{children}</>;
 }

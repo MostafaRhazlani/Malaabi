@@ -10,6 +10,7 @@ import { Role } from 'generated/prisma/enums';
 import { Prisma } from 'generated/prisma/client';
 import { EmailService } from 'src/email/email.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UploadService } from 'src/upload/upload.service';
 import { CreateManagerDto } from './dto/create-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
@@ -21,6 +22,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    private readonly upload: UploadService,
   ) {}
 
   async findAll(query: GetUsersDto, excludeId?: string) {
@@ -83,11 +85,54 @@ export class UsersService {
     if (id === requesterId)
       throw new ConflictException('You cannot delete your own account');
 
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        role: true,
+        _count: {
+          select: {
+            stadiums: true,
+            createdGuards: true,
+          },
+        },
+      },
+    });
     if (!user) throw new NotFoundException('User not found');
 
+    // Collect cascade impact summary for managers before deletion
+    let deletedStadiums = 0;
+    let deletedBookings = 0;
+    let unlinkedGuards = 0;
+
+    if (user.role === Role.MANAGER) {
+      deletedStadiums = user._count.stadiums;
+      unlinkedGuards = user._count.createdGuards;
+
+      if (deletedStadiums > 0) {
+        const stadiums = await this.prisma.stadium.findMany({
+          where: { managerId: id },
+          select: { id: true },
+        });
+        deletedBookings = await this.prisma.booking.count({
+          where: { stadiumId: { in: stadiums.map((s) => s.id) } },
+        });
+
+        // Clean up uploaded stadium folders before deletion
+        await Promise.all(
+          stadiums.map((s) => this.upload.deleteFolder(`stadiums/${s.id}`)),
+        );
+      }
+    }
+
     await this.prisma.user.delete({ where: { id } });
-    return { id };
+
+    const warning =
+      user.role === Role.MANAGER && deletedStadiums > 0
+        ? `Manager deleted. Cascade removed: ${deletedStadiums} stadium(s), ${deletedBookings} booking(s). ${unlinkedGuards} guard(s) were unlinked.`
+        : undefined;
+
+    return { id, ...(warning && { warning }) };
   }
 
   async createManager(dto: CreateManagerDto) {
