@@ -1,61 +1,80 @@
 import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthService } from '@/services/auth.service';
 import { useAppDispatch } from '@/store/hooks';
 import { clearUser } from '@/store/slices/authSlice';
 import { ROUTES } from '@/constants/routes';
+import { IconSymbolName } from '@/components/ui/icon-symbol';
+import { TabButton } from '@/components/ui/tab-button';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { TabItem } from '@/interfaces/tab-item.interface';
+
+const TabArr: TabItem[] = [
+  { route: 'index', label: 'Home', icon: 'house.fill' },
+  { route: 'favorites', label: 'Favorites', icon: 'heart.fill' },
+  { route: 'search', label: 'Search', icon: 'magnifyingglass' },
+  { route: 'team', label: 'Team', icon: 'person.3.fill' },
+  { route: 'profile', label: 'Profile', icon: 'person.fill' },
+];
 
 export default function PlayerTabsLayout() {
-  const colorScheme = useColorScheme();
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { colorScheme } = useColorScheme();
+  const insets = useSafeAreaInsets();
 
-  const LogoutButton = () => (
-    <TouchableOpacity
-      onPress={async () => {
-        dispatch(clearUser());
-        await AuthService.logout();
-        router.replace(ROUTES.AUTH_LOGIN);
-      }}
-      style={styles.logoutButton}
-    >
-      <Text style={styles.logoutText}>Logout</Text>
-    </TouchableOpacity>
-  );
+  const handleLogout = async () => {
+    dispatch(clearUser());
+    await AuthService.logout();
+    router.replace(ROUTES.AUTH_LOGIN);
+  };
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: true,
         headerShadowVisible: false,
-        headerRight: () => <LogoutButton />,
-        tabBarButton: HapticTab,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: Colors[colorScheme].card,
+            height: 60 + insets.bottom,
+            paddingBottom: insets.bottom > 0 ? insets.bottom / 2 : 0
+          },
+        ],
+        headerRight: () => (
+          <Pressable className="mr-4" onPress={handleLogout}>
+            <Text className="text-red-500 font-semibold">Logout</Text>
+          </Pressable>
+        ),
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
+      {
+        TabArr.map((item, index) => {
+          return (
+            <Tabs.Screen
+              key={index}
+              name={item.route}
+              options={{
+                title: item.label,
+                tabBarShowLabel: false,
+                tabBarButton: (props) => <TabButton {...props} item={item} />,
+              }}
+            />
+          )
+        })
+      }
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
-  logoutButton: {
-    marginRight: 16,
-  },
-  logoutText: {
-    color: '#EF4444',
-    fontSize: 15,
-    fontWeight: '600',
+  tabBar: {
+    borderTopStartRadius: 20,
+    borderTopEndRadius: 20,
+    borderTopWidth: 0,
   },
 });
