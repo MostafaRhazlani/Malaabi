@@ -6,7 +6,7 @@ export default function GuardHomeScreen() {
   const user = useAppSelector((s) => s.auth.user);
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-zinc-950" edges={['bottom']}>
+    <SafeAreaView className="flex-1" edges={['bottom']}>
       <View className="flex-1 items-center justify-center px-8 gap-4">
         <View className="w-20 h-20 rounded-full bg-primary-600 items-center justify-center mb-2">
           <Text className="text-white text-3xl font-bold">
