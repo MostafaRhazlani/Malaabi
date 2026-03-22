@@ -1,6 +1,6 @@
 import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -12,10 +12,9 @@ import { clearUser } from '@/store/slices/authSlice';
 import { ROUTES } from '@/constants/routes';
 
 export default function GuardTabsLayout() {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const router = useRouter();
   const dispatch = useAppDispatch();
-
   const LogoutButton = () => (
     <TouchableOpacity
       onPress={async () => {
@@ -23,16 +22,16 @@ export default function GuardTabsLayout() {
         await AuthService.logout();
         router.replace(ROUTES.AUTH_LOGIN);
       }}
-      style={styles.logoutButton}
+      className="mr-4"
     >
-      <Text style={styles.logoutText}>Logout</Text>
+      <Text className="text-red-500 text-[15px] font-semibold">Logout</Text>
     </TouchableOpacity>
   );
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme].tint,
         headerShown: true,
         headerShadowVisible: false,
         headerRight: () => <LogoutButton />,
@@ -42,20 +41,10 @@ export default function GuardTabsLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} weight="regular" />,
         }}
       />
     </Tabs>
   );
 }
 
-const styles = StyleSheet.create({
-  logoutButton: {
-    marginRight: 16,
-  },
-  logoutText: {
-    color: '#EF4444',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-});

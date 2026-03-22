@@ -1,8 +1,8 @@
+import '../global.css';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import '../global.css';
 
 import { Provider } from 'react-redux';
 import { store } from '@/store/store';
@@ -10,6 +10,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { CustomLightTheme, CustomDarkTheme } from '@/constants/navigation-themes';
 
 import AuthInitializer from '@/components/auth-initializer';
 import { useAppSelector } from '@/store/hooks';
@@ -31,7 +32,7 @@ export default function RootLayout() {
 }
 
 function RootLayoutInner() {
-  const colorScheme = useColorScheme();
+  const { isDark } = useColorScheme();
   const router = useRouter();
   const segments = useSegments();
   const { user, isLoading } = useAppSelector((s) => s.auth);
@@ -58,14 +59,24 @@ function RootLayoutInner() {
     );
   }
 
+  const appTheme = isDark ? CustomDarkTheme : CustomLightTheme;
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <ThemeProvider value={appTheme}>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: appTheme.colors.card,
+          },
+          headerShadowVisible: false,
+          headerTintColor: appTheme.colors.text,
+        }}
+      >
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(player)" options={{ headerShown: false }} />
         <Stack.Screen name="(guard)" options={{ headerShown: false }} />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
     </ThemeProvider>
   );
 }
