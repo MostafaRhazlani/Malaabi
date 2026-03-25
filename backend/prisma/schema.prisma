@@ -47,7 +47,10 @@ model Stadium {
   city           String
   address        String
   images         String[]      @default([])
+  latitude       Float?
+  longitude      Float?
   status         StadiumStatus @default(PENDING)
+  stadiumType    StadiumType   @default(FIVE_V_FIVE)
   priceFullMatch Float         @default(0)
   priceHalfMatch Float         @default(0)
   managerId      String
@@ -110,6 +113,14 @@ enum BookingStatus {
 enum MatchType {
   FULL
   HALF
+}
+
+enum StadiumType {
+  FIVE_V_FIVE
+  SEVEN_V_SEVEN
+  EIGHT_V_EIGHT
+  ELEVEN_V_ELEVEN
+  INDOOR
 }
 
 enum Gender {

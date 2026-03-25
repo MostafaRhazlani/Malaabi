@@ -4,11 +4,23 @@ import { useRef, useState } from "react";
 import { RiAddLine, RiCloseLine, RiUploadCloud2Line } from "@remixicon/react";
 import { toast } from "sonner";
 import type { CreateStadiumPayload } from "@/services/manager/apis";
+import Dropdown from "@/components/ui/Dropdown";
+
+const STADIUM_TYPE_OPTIONS = [
+  { value: "FIVE_V_FIVE", label: "5 vs 5" },
+  { value: "SEVEN_V_SEVEN", label: "7 vs 7" },
+  { value: "EIGHT_V_EIGHT", label: "8 vs 8" },
+  { value: "ELEVEN_V_ELEVEN", label: "11 vs 11" },
+  { value: "INDOOR", label: "Indoor" },
+];
 
 const emptyForm: CreateStadiumPayload = {
   name: "",
   city: "",
   address: "",
+  stadiumType: "FIVE_V_FIVE",
+  latitude: undefined,
+  longitude: undefined,
   priceFullMatch: 0,
   priceHalfMatch: 0,
 };
@@ -69,6 +81,16 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
             </div>
           ))}
 
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Stadium Type</label>
+            <Dropdown
+              fullWidth
+              options={STADIUM_TYPE_OPTIONS}
+              value={(form.stadiumType ?? "FIVE_V_FIVE") as string}
+              onChange={(val) => setForm((f) => ({ ...f, stadiumType: val }))}
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-slate-400 mb-1">Full Match Price ($)</label>
@@ -92,6 +114,31 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Latitude</label>
+              <input
+                type="number"
+                step="any"
+                value={form.latitude ?? ""}
+                onChange={(e) => setForm((f) => ({ ...f, latitude: e.target.value ? Number(e.target.value) : undefined }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500"
+                placeholder="e.g. 33.5731"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Longitude</label>
+              <input
+                type="number"
+                step="any"
+                value={form.longitude ?? ""}
+                onChange={(e) => setForm((f) => ({ ...f, longitude: e.target.value ? Number(e.target.value) : undefined }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500"
+                placeholder="e.g. -7.5898"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs text-slate-400 mb-2">
               Photos <span className="text-slate-600">(optional)</span>
@@ -101,11 +148,10 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
               onDragLeave={() => setDragOver(false)}
               onDrop={(e) => { e.preventDefault(); setDragOver(false); addPhotos(Array.from(e.dataTransfer.files)); }}
               onClick={() => fileInputRef.current?.click()}
-              className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-5 cursor-pointer transition-colors ${
-                dragOver
+              className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-5 cursor-pointer transition-colors ${dragOver
                   ? "border-primary-500 bg-primary-500/10"
                   : "border-white/15 bg-white/3 hover:border-primary-500/50 hover:bg-white/5"
-              }`}
+                }`}
             >
               <input
                 ref={fileInputRef}

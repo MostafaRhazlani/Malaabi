@@ -59,6 +59,20 @@ export function useManagerStadiums() {
     [dispatch],
   );
 
+  const updateStadium = useCallback(
+    async (stadium: ManagerStadium, payload: Partial<CreateStadiumPayload>) => {
+      await ManagerService.updateStadium(stadium.id, payload);
+      dispatch(
+        updateManagerStadium({
+          ...stadium,
+          ...payload,
+        } as ManagerStadium),
+      );
+      toast.success("Stadium information updated");
+    },
+    [dispatch],
+  );
+
   const uploadPhotos = useCallback(
     async (stadium: ManagerStadium, files: File[]) => {
       const result = await ManagerService.uploadStadiumPhotos(stadium.id, files);
@@ -96,6 +110,7 @@ export function useManagerStadiums() {
     error,
     createStadium,
     editPrices,
+    updateStadium,
     uploadPhotos,
     deletePhoto,
     deleteStadium,

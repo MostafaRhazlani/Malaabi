@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UploadService } from 'src/upload/upload.service';
 import { CreateStadiumDto } from './dto/create-stadium.dto';
+import { UpdateStadiumDto } from './dto/update-stadium-info.dto';
 import { UpdateStadiumPricesDto } from './dto/update-stadium-prices.dto';
 
 @Injectable()
@@ -26,6 +27,9 @@ export class ManagerStadiumsService {
         address: true,
         images: true,
         status: true,
+        stadiumType: true,
+        latitude: true,
+        longitude: true,
         priceFullMatch: true,
         priceHalfMatch: true,
         createdAt: true,
@@ -39,6 +43,9 @@ export class ManagerStadiumsService {
         name: dto.name,
         city: dto.city,
         address: dto.address,
+        stadiumType: dto.stadiumType,
+        latitude: dto.latitude,
+        longitude: dto.longitude,
         priceFullMatch: dto.priceFullMatch ?? 0,
         priceHalfMatch: dto.priceHalfMatch ?? 0,
         managerId,
@@ -49,10 +56,34 @@ export class ManagerStadiumsService {
         city: true,
         address: true,
         status: true,
+        stadiumType: true,
+        latitude: true,
+        longitude: true,
         priceFullMatch: true,
         priceHalfMatch: true,
         images: true,
         createdAt: true,
+      },
+    });
+  }
+
+  async update(managerId: string, id: string, dto: UpdateStadiumDto) {
+    const stadium = await this.prisma.stadium.findUnique({ where: { id } });
+    if (!stadium) throw new NotFoundException('Stadium not found');
+    if (stadium.managerId !== managerId)
+      throw new ForbiddenException('You do not own this stadium');
+
+    return this.prisma.stadium.update({
+      where: { id },
+      data: {
+        name: dto.name,
+        city: dto.city,
+        address: dto.address,
+        stadiumType: dto.stadiumType,
+        latitude: dto.latitude,
+        longitude: dto.longitude,
+        priceFullMatch: dto.priceFullMatch,
+        priceHalfMatch: dto.priceHalfMatch,
       },
     });
   }

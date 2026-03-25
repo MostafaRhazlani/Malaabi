@@ -10,6 +10,9 @@ export interface CreateStadiumPayload {
   name: string;
   city: string;
   address: string;
+  stadiumType?: string;
+  latitude?: number;
+  longitude?: number;
   priceFullMatch?: number;
   priceHalfMatch?: number;
 }
@@ -54,6 +57,10 @@ export const ManagerService = {
 
   updateStadiumPrices: async (id: string, payload: UpdatePricesPayload): Promise<void> => {
     await api.patch(`/manager/stadiums/${id}/prices`, payload);
+  },
+
+  updateStadium: async (id: string, payload: Partial<CreateStadiumPayload>): Promise<void> => {
+    await api.patch(`/manager/stadiums/${id}`, payload);
   },
 
   uploadStadiumPhotos: async (id: string, files: File[]): Promise<{ images: string[] }> => {

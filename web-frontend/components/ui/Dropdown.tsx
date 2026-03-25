@@ -13,6 +13,7 @@ interface DropdownProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   placeholder?: string;
+  fullWidth?: boolean;
   renderTrigger?: (selected: DropdownOption<T> | undefined) => React.ReactNode;
 }
 
@@ -21,6 +22,7 @@ export default function Dropdown<T extends string>({
   value,
   onChange,
   placeholder = "Select…",
+  fullWidth = false,
   renderTrigger,
 }: DropdownProps<T>) {
   const [open, setOpen] = useState(false);
@@ -39,17 +41,17 @@ export default function Dropdown<T extends string>({
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className={`relative ${fullWidth ? "w-full" : ""}`} ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5"
+        className={`${fullWidth ? "w-full" : ""}`}
         suppressHydrationWarning
       >
         {renderTrigger ? (
           renderTrigger(selected)
         ) : (
-          <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-slate-300 text-sm rounded-md px-3 py-2 hover:bg-white/10 transition-colors">
+          <span className={`flex items-center ${fullWidth ? "justify-between w-full" : "gap-1.5"} bg-white/5 border border-white/10 text-slate-300 text-sm rounded-md px-3 py-2 hover:bg-white/10 transition-colors`}>
             {selected?.label ?? placeholder}
             <RiArrowDownSLine className="w-4 h-4 text-slate-400" />
           </span>
@@ -57,7 +59,7 @@ export default function Dropdown<T extends string>({
       </button>
 
       {open && (
-        <ul className="absolute z-50 mt-1 min-w-full w-max bg-slate-800 border border-white/10 rounded-lg shadow-xl overflow-hidden">
+        <ul className={`absolute z-50 mt-1 min-w-full w-max bg-slate-800 border border-white/10 rounded-lg shadow-xl overflow-hidden`}>
           {options.map((option) => (
             <li key={option.value}>
               <button

@@ -6,7 +6,7 @@ import { useManagerStadiums } from "@/hooks/useManagerStadiums";
 import type { ManagerStadium } from "@/interfaces/manager.interface";
 import StadiumCard from "./_components/StadiumCard";
 import CreateStadiumModal from "./_components/CreateStadiumModal";
-import EditPricesModal from "./_components/EditPricesModal";
+import UpdateStadiumModal from "./_components/UpdateStadiumModal";
 import PhotosModal from "./_components/PhotosModal";
 import DeleteStadiumModal from "./_components/DeleteStadiumModal";
 
@@ -57,7 +57,7 @@ export default function ManagerStadiumsPage() {
             <StadiumCard
               key={stadium.id}
               stadium={stadium}
-              onEditPrices={setEditTarget}
+              onEditInfo={setEditTarget}
               onPhotos={setPhotosTarget}
               onDelete={setDeleteTarget}
             />
@@ -72,9 +72,9 @@ export default function ManagerStadiumsPage() {
         />
       )}
       {editTarget && (
-        <EditPricesModal
+        <UpdateStadiumModal
           stadium={editTarget}
-          onSave={stadiumsHook.editPrices}
+          onSave={stadiumsHook.updateStadium}
           onClose={() => setEditTarget(null)}
         />
       )}

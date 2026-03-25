@@ -22,6 +22,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AuthenticatedUser } from 'src/auth/interfaces/authenticated-user.interface';
 import { CreateStadiumDto } from './dto/create-stadium.dto';
+import { UpdateStadiumDto } from './dto/update-stadium-info.dto';
 import { UpdateStadiumPricesDto } from './dto/update-stadium-prices.dto';
 import { DeletePhotoDto } from './dto/delete-photo.dto';
 import { ManagerStadiumsService } from './stadiums.service';
@@ -43,6 +44,15 @@ export class ManagerStadiumsController {
     @Body() dto: CreateStadiumDto,
   ) {
     return this.stadiumsService.create(req.user.user_id, dto);
+  }
+
+  @Patch(':id')
+  update(
+    @Request() req: ExpressRequest & { user: AuthenticatedUser },
+    @Param('id') id: string,
+    @Body() dto: UpdateStadiumDto,
+  ) {
+    return this.stadiumsService.update(req.user.user_id, id, dto);
   }
 
   @Patch(':id/prices')

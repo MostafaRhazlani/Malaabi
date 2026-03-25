@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { StadiumType } from 'generated/prisma/enums';
 
 export class CreateStadiumDto {
   @IsString()
@@ -13,6 +14,20 @@ export class CreateStadiumDto {
   @IsString()
   @IsNotEmpty()
   address: string;
+
+  @IsEnum(StadiumType)
+  @IsOptional()
+  stadiumType?: StadiumType;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  latitude?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  longitude?: number;
 
   @IsNumber()
   @Min(0)
