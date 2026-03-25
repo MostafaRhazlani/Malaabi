@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 import { HeroCard } from '@/components/player/home/hero-card';
 import { FilterBar } from '@/components/ui/filter-bar';
-import { RecentStadiums } from '@/components/player/home/recent-stadiums';
+import { RecentStadiums } from '@/components/player/home/recent-stadiums';      
 
 const FILTERS = ['Tout', '5-5', '7-7', '8-8', '11-11', 'Indoor'];
 
 export default function PlayerHomeScreen() {
   const [activeFilter, setActiveFilter] = useState('Tout');
+  const searchQuery = useSelector((state: RootState) => state.search.home);
 
   // Mocking an upcoming match
   const mockMatch = {
@@ -46,17 +49,18 @@ export default function PlayerHomeScreen() {
         activeFilter={activeFilter}
         onFilterPress={setActiveFilter}
       />
-      {/* Hero Card Segment */}
-      <HeroCard
-        matchDate={kickoffDate}
-        stadiumName={mockMatch.stadium}
-        location={mockMatch.city}
-        team2={mockMatch.opponent}
-      />
+      {/* Hero Card Segment - Hide when searching */}
+      {searchQuery.trim() === '' && (
+        <HeroCard
+          matchDate={kickoffDate}
+          stadiumName={mockMatch.stadium}
+          location={mockMatch.city}
+          team2={mockMatch.opponent}
+        />
+      )}
 
-      {/* Recent Stadiums */}
+      {/* Recent Stadiums / Search Results */}
       <RecentStadiums type={stadiumType} />
-
     </ScrollView>
   );
 }

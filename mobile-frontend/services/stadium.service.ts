@@ -8,4 +8,11 @@ export const StadiumService = {
     });
     return data;
   },
+
+  async search(query?: string): Promise<Stadium[]> {
+    const { data } = await api.get<Stadium[]>('/stadiums/search', {
+      params: { q: query },
+    });
+    return data;
+  },
 };

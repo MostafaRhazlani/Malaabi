@@ -64,7 +64,7 @@ export default function PlayerTabsLayout() {
                 tabBarShowLabel: false,
                 tabBarButton: (props) => <TabButton {...props} item={item} />,
                 ...(item.route !== 'profile' ? {
-                  header: () => <CustomHeader title={item.label} onLogout={handleLogout} />
+                  header: () => <CustomHeader title={item.label} routeName={item.route} onLogout={handleLogout} />
                 } : {})
               }}
             />

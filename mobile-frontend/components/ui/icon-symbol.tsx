@@ -18,6 +18,7 @@ import {
   SoccerBall,
   Trophy,
   CalendarPlus,
+  XCircle,
 } from 'phosphor-react-native';
 
 type IconMapping = Record<SymbolViewProps['name'], React.ComponentType<any>>;
@@ -43,6 +44,7 @@ const MAPPING = {
   'sportscourt.fill': SoccerBall,
   'trophy.fill': Trophy,
   'calendar.badge.plus': CalendarPlus,
+  'xmark.circle.fill': XCircle,
 } as IconMapping;
 
 /**
