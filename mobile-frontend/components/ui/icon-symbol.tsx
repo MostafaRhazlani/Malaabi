@@ -11,6 +11,10 @@ import {
   PaperPlaneTilt,
   Code,
   CaretRight,
+  MapPin,
+  Bell,
+  SignOut,
+  ChatCircle,
 } from 'phosphor-react-native';
 
 type IconMapping = Record<SymbolViewProps['name'], React.ComponentType<any>>;
@@ -29,6 +33,10 @@ const MAPPING = {
   'paperplane.fill': PaperPlaneTilt,
   'chevron.left.forwardslash.chevron.right': Code,
   'chevron.right': CaretRight,
+  'map': MapPin,
+  'bell.fill': Bell,
+  'rectangle.portrait.and.arrow.right': SignOut,
+  'bubble.right.fill': ChatCircle,
 } as IconMapping;
 
 /**

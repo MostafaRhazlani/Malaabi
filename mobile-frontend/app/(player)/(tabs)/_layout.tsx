@@ -12,6 +12,7 @@ import { TabButton } from '@/components/ui/tab-button';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { TabItem } from '@/interfaces/tab-item.interface';
+import { CustomHeader } from '@/components/ui/custom-header';
 
 const TabArr: TabItem[] = [
   { route: 'index', label: 'Home', icon: 'house.fill' },
@@ -41,7 +42,7 @@ export default function PlayerTabsLayout() {
         tabBarStyle: [
           styles.tabBar,
           {
-            backgroundColor: Colors[colorScheme].card,
+            backgroundColor: Colors[colorScheme ?? 'light'].card,
             height: 60 + insets.bottom,
             paddingBottom: insets.bottom > 0 ? insets.bottom / 2 : 0
           },
@@ -62,6 +63,9 @@ export default function PlayerTabsLayout() {
                 title: item.label,
                 tabBarShowLabel: false,
                 tabBarButton: (props) => <TabButton {...props} item={item} />,
+                ...(item.route !== 'profile' ? {
+                  header: () => <CustomHeader title={item.label} onLogout={handleLogout} />
+                } : {})
               }}
             />
           )
