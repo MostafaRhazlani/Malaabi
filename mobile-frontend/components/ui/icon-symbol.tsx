@@ -15,6 +15,9 @@ import {
   Bell,
   SignOut,
   ChatCircle,
+  SoccerBall,
+  Trophy,
+  CalendarPlus,
 } from 'phosphor-react-native';
 
 type IconMapping = Record<SymbolViewProps['name'], React.ComponentType<any>>;
@@ -37,6 +40,9 @@ const MAPPING = {
   'bell.fill': Bell,
   'rectangle.portrait.and.arrow.right': SignOut,
   'bubble.right.fill': ChatCircle,
+  'sportscourt.fill': SoccerBall,
+  'trophy.fill': Trophy,
+  'calendar.badge.plus': CalendarPlus,
 } as IconMapping;
 
 /**

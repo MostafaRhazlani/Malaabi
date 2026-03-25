@@ -155,7 +155,7 @@ export function HeroCard({
         )}
 
         <View className="flex-row gap-2 mt-2">
-          <TouchableOpacity className="flex-1 bg-primary-500 py-3 rounded-xl items-center justify-center flex-row shadow-sm">
+          <TouchableOpacity className="flex-1 bg-theme-light-tint dark:bg-theme-dark-tint py-3 rounded-xl items-center justify-center flex-row shadow-sm">
             <Text className="text-white dark:text-black text-base font-bold tracking-wider uppercase">View Match Details</Text>
           </TouchableOpacity>
           <TouchableOpacity className="px-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl items-center justify-center">

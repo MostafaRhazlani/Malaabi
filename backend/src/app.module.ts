@@ -7,9 +7,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './admin/admin.module';
 import { ManagerModule } from './manager/manager.module';
 import { UploadModule } from './upload/upload.module';
+import { PlayerModule } from './player/player.module';
 
 @Module({
-  imports: [PrismaModule, UploadModule, UserModule, AuthModule, AdminModule, ManagerModule],
+  imports: [PrismaModule, UploadModule, UserModule, AuthModule, AdminModule, ManagerModule, PlayerModule],
   controllers: [AppController],
   providers: [AppService],
 })

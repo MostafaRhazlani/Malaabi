@@ -5,9 +5,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class PlayerStadiumsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
+  findAll(type?: string) {
     return this.prisma.stadium.findMany({
-      where: { status: 'ACTIVE' },
+      where: {
+        status: 'ACTIVE',
+        ...(type && { stadiumType: type as any }),
+      },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

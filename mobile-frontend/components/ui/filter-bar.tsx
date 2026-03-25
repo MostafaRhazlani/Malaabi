@@ -10,6 +10,7 @@ export interface FilterBarProps {
 export function FilterBar({ filters, activeFilter, onFilterPress }: FilterBarProps) {
   return (
     <ScrollView
+      className='bg-theme-light-background dark:bg-theme-dark-background'
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingHorizontal: 16, gap: 20 }}
