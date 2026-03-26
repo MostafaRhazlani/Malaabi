@@ -1,11 +1,13 @@
 import { Stadium, STADIUM_TYPE_LABEL } from '@/interfaces/stadium.interface';
 import { BASE_URL } from '@/services/api';
 import { IconSymbol } from './ui/icon-symbol';
+import { useRouter } from 'expo-router';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1518605368461-1e1e111e1ebc?auto=format&fit=crop&q=80&w=400&h=300';
 
 export function StadiumCard({ stadium }: { stadium: Stadium }) {
+  const router = useRouter();
   const imageUri = stadium.images?.[0]
     ? `${BASE_URL}${stadium.images[0]}`
     : PLACEHOLDER_IMAGE;
@@ -15,6 +17,15 @@ export function StadiumCard({ stadium }: { stadium: Stadium }) {
       activeOpacity={0.8}
       className="flex-1 m-1.5 bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-gray-100 dark:border-slate-700/50 shadow-sm"
       style={{ maxWidth: '48%' }}
+      onPress={() => {
+        router.push({
+          pathname: '/(player)/stadium/[id]',
+          params: {
+            id: stadium.id,
+            stadium: encodeURIComponent(JSON.stringify(stadium)),
+          },
+        });
+      }}
     >
       <View>
         <Image

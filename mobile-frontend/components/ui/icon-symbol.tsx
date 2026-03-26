@@ -19,6 +19,12 @@ import {
   Trophy,
   CalendarPlus,
   XCircle,
+  Star,
+  ArrowLeft,
+  Lightning,
+  Shower,
+  Phone,
+  Users,
 } from 'phosphor-react-native';
 
 type IconMapping = Record<SymbolViewProps['name'], React.ComponentType<any>>;
@@ -32,11 +38,14 @@ const MAPPING = {
   'house.fill': House,
   'magnifyingglass': MagnifyingGlass,
   'heart.fill': Heart,
+  'heart': Heart,
   'person.3.fill': UsersThree,
+  'person.2.fill': Users,
   'person.fill': User,
   'paperplane.fill': PaperPlaneTilt,
   'chevron.left.forwardslash.chevron.right': Code,
   'chevron.right': CaretRight,
+  'chevron.left': ArrowLeft,
   'map': MapPin,
   'bell.fill': Bell,
   'rectangle.portrait.and.arrow.right': SignOut,
@@ -45,7 +54,13 @@ const MAPPING = {
   'trophy.fill': Trophy,
   'calendar.badge.plus': CalendarPlus,
   'xmark.circle.fill': XCircle,
-} as IconMapping;
+  'star': Star,
+  'star.fill': Star,
+  'lightning.fill': Lightning,
+  'shower.fill': Shower,
+  'phone.fill': Phone,
+  'soccer.ball.fill': SoccerBall,
+} as Record<string, React.ComponentType<any>>;
 
 /**
  * An icon component that uses Phosphor icons across all platforms.
