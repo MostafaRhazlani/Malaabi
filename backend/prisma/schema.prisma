@@ -53,6 +53,8 @@ model Stadium {
   stadiumType    StadiumType   @default(FIVE_V_FIVE)
   priceFullMatch Float         @default(0)
   priceHalfMatch Float         @default(0)
+  startTime      String        @default("08:00")
+  endTime        String        @default("23:00")
   managerId      String
   manager        User          @relation("ManagerStadiums", fields: [managerId], references: [id], onDelete: Cascade)
   guards         User[]        @relation("GuardStadium")

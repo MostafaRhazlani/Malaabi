@@ -30,6 +30,8 @@ export default function UpdateStadiumModal({ stadium, onSave, onClose }: Props) 
     longitude: stadium.longitude,
     priceFullMatch: stadium.priceFullMatch,
     priceHalfMatch: stadium.priceHalfMatch,
+    startTime: stadium.startTime,
+    endTime: stadium.endTime,
   });
   const [saving, setSaving] = useState(false);
 
@@ -93,6 +95,27 @@ export default function UpdateStadiumModal({ stadium, onSave, onClose }: Props) 
                 value={form.longitude ?? ""}
                 onChange={(e) => setForm((f) => ({ ...f, longitude: e.target.value ? Number(e.target.value) : undefined }))}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Start Time</label>
+              <input
+                type="time"
+                value={form.startTime ?? "08:00"}
+                onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 [color-scheme:dark]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">End Time</label>
+              <input
+                type="time"
+                value={form.endTime ?? "23:00"}
+                onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 [color-scheme:dark]"
               />
             </div>
           </div>

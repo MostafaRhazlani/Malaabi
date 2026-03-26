@@ -147,6 +147,13 @@ export default function StadiumDetailScreen() {
 
         <Pressable
           className="rounded-full px-8 py-3.5 active:opacity-80"
+          onPress={() => {
+            const encoded = encodeURIComponent(JSON.stringify(stadium));
+            router.push({
+              pathname: `/stadium/book/[id]`,
+              params: { id: stadium.id, stadium: encoded }
+            });
+          }}
           style={{
             backgroundColor: tint,
             shadowColor: tint,

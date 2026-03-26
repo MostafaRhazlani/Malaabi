@@ -31,6 +31,8 @@ export interface ManagerStadium {
   longitude?: number;
   priceFullMatch: number;
   priceHalfMatch: number;
+  startTime?: string;
+  endTime?: string;
   createdAt: string;
 }
 

@@ -19,4 +19,6 @@ export interface Stadium {
   longitude?: number;
   priceFullMatch: number;
   priceHalfMatch: number;
+  startTime?: string;
+  endTime?: string;
 }

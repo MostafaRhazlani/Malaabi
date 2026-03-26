@@ -40,4 +40,13 @@ export class CreateStadiumDto {
   @IsOptional()
   @Type(() => Number)
   priceHalfMatch?: number;
+
+  @IsString()
+  @IsOptional()
+  startTime?: string;
+
+  @IsString()
+  @IsOptional()
+  endTime?: string;
 }
+

@@ -32,6 +32,8 @@ export class ManagerStadiumsService {
         longitude: true,
         priceFullMatch: true,
         priceHalfMatch: true,
+        startTime: true,
+        endTime: true,
         createdAt: true,
       },
     });
@@ -48,6 +50,8 @@ export class ManagerStadiumsService {
         longitude: dto.longitude,
         priceFullMatch: dto.priceFullMatch ?? 0,
         priceHalfMatch: dto.priceHalfMatch ?? 0,
+        startTime: dto.startTime,
+        endTime: dto.endTime,
         managerId,
       },
       select: {
@@ -61,6 +65,8 @@ export class ManagerStadiumsService {
         longitude: true,
         priceFullMatch: true,
         priceHalfMatch: true,
+        startTime: true,
+        endTime: true,
         images: true,
         createdAt: true,
       },
@@ -84,6 +90,8 @@ export class ManagerStadiumsService {
         longitude: dto.longitude,
         priceFullMatch: dto.priceFullMatch,
         priceHalfMatch: dto.priceHalfMatch,
+        startTime: dto.startTime,
+        endTime: dto.endTime,
       },
     });
   }

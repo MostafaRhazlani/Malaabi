@@ -24,6 +24,8 @@ export class PlayerStadiumsService {
         longitude: true,
         priceFullMatch: true,
         priceHalfMatch: true,
+        startTime: true,
+        endTime: true,
       },
     });
   }
@@ -51,6 +53,8 @@ export class PlayerStadiumsService {
         longitude: true,
         priceFullMatch: true,
         priceHalfMatch: true,
+        startTime: true,
+        endTime: true,
       },
     });
   }

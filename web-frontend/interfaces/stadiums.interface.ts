@@ -14,6 +14,8 @@ export interface AdminStadium {
   address: string;
   images: string[];
   status: StadiumStatus;
+  startTime: string;
+  endTime: string;
   createdAt: string;
   manager: AdminStadiumManager;
 }

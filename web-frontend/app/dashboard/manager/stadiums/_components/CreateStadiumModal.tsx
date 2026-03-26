@@ -23,6 +23,8 @@ const emptyForm: CreateStadiumPayload = {
   longitude: undefined,
   priceFullMatch: 0,
   priceHalfMatch: 0,
+  startTime: "08:00",
+  endTime: "23:00",
 };
 
 interface Props {
@@ -110,6 +112,27 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
                 value={form.priceHalfMatch}
                 onChange={(e) => setForm((f) => ({ ...f, priceHalfMatch: Number(e.target.value) }))}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Start Time</label>
+              <input
+                type="time"
+                value={form.startTime}
+                onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 [color-scheme:dark]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">End Time</label>
+              <input
+                type="time"
+                value={form.endTime}
+                onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 [color-scheme:dark]"
               />
             </div>
           </div>

@@ -15,6 +15,8 @@ export interface CreateStadiumPayload {
   longitude?: number;
   priceFullMatch?: number;
   priceHalfMatch?: number;
+  startTime?: string;
+  endTime?: string;
 }
 
 export interface UpdatePricesPayload {
