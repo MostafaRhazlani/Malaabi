@@ -18,6 +18,7 @@ export default function ParallaxScrollView({
   children,
   headerImage,
   headerBackgroundColor,
+  contentContainerClassName = '',
 }: ParallaxScrollViewProps) {
   const backgroundColor = useThemeColor({}, 'background');
   const { colorScheme } = useColorScheme();
@@ -53,7 +54,7 @@ export default function ParallaxScrollView({
         ]}>
         {headerImage}
       </Animated.View>
-      <ThemedView className="flex-1 p-8 gap-4 overflow-hidden">{children}</ThemedView>
+      <ThemedView className={`flex-1 overflow-hidden ${contentContainerClassName}`}>{children}</ThemedView>
     </Animated.ScrollView>
   );
 }
