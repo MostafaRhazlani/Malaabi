@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import {
-  Image,
   Pressable,
   Text,
   View,
@@ -84,10 +83,9 @@ export default function StadiumDetailScreen() {
 
   return (
     <View className="flex-1 bg-theme-light-background dark:bg-theme-dark-background">
-      <Stack.Screen options={{ headerShown: false }} />
-
       <ParallaxScrollView
         headerBackgroundColor={{ light: '#D1FAE5', dark: '#064E3B' }} // Emerald based backgrounds
+        contentContainerClassName="p-4"
         headerImage={
           <StadiumHeaderImage
             heroImages={heroImages}
