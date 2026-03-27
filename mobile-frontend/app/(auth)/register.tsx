@@ -61,7 +61,7 @@ export default function RegisterScreen() {
       if (!result) {
         setError("Registration failed. Please try again.");
       } else if (result.role === 'PLAYER') {
-        dispatch(setUser({ email: result.email, role: result.role }));
+        dispatch(setUser({ id: result.id, email: result.email, role: result.role }));
         router.replace(ROUTES.PLAYER);
       } else {
         await AuthService.logout();

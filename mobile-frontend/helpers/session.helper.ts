@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 const AUTH_KEY = 'auth_session';
 
 export interface AuthSession {
+  userId: string;
   accessToken: string;
   refreshToken: string;
   role: string;

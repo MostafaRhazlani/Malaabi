@@ -44,10 +44,10 @@ export default function LoginScreen() {
       if (!result) {
         setError("Login failed. Please try again.");
       } else if (result.role === 'PLAYER') {
-        dispatch(setUser({ email: result.email, role: result.role }));
+        dispatch(setUser({ id: result.id, email: result.email, role: result.role }));
         router.replace(ROUTES.PLAYER);
       } else if (result.role === 'GUARD') {
-        dispatch(setUser({ email: result.email, role: result.role }));
+        dispatch(setUser({ id: result.id, email: result.email, role: result.role }));
         router.replace(ROUTES.GUARD);
       } else {
         await AuthService.logout();
