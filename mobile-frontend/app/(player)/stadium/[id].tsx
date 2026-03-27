@@ -55,6 +55,13 @@ export default function StadiumDetailScreen() {
     catch { return null; }
   }, [params.stadium]);
 
+  const heroImages = useMemo(() => {
+    if (!stadium?.images || stadium.images.length === 0) return [PLACEHOLDER];
+    return stadium.images.map(img =>
+      img.startsWith('http') ? img : `${BASE_URL}${img}`
+    );
+  }, [stadium?.images]);
+
   if (!stadium) {
     return (
       <View className="flex-1 items-center justify-center bg-theme-light-background dark:bg-theme-dark-background">
@@ -65,12 +72,6 @@ export default function StadiumDetailScreen() {
   }
 
   const typeLabel = STADIUM_TYPE_LABEL[stadium.stadiumType] ?? stadium.stadiumType;
-  const heroImages = useMemo(() => {
-    if (!stadium.images || stadium.images.length === 0) return [PLACEHOLDER];
-    return stadium.images.map(img =>
-      img.startsWith('http') ? img : `${BASE_URL}${img}`
-    );
-  }, [stadium.images]);
 
   const overview = `${stadium.name} is a premium football pitch in ${stadium.city}, perfect for competitive and casual matches. Enjoy quality turf, smooth booking and a great atmosphere.`;
   const mapsUrl = getMapsUrl(stadium);

@@ -25,6 +25,13 @@ import {
   Shower,
   Phone,
   Users,
+  Plus,
+  PlusCircle,
+  X,
+  Camera,
+  Minus,
+  Lock,
+  LockOpen,
 } from 'phosphor-react-native';
 
 type IconMapping = Record<SymbolViewProps['name'], React.ComponentType<any>>;
@@ -60,7 +67,15 @@ const MAPPING = {
   'shower.fill': Shower,
   'phone.fill': Phone,
   'soccer.ball.fill': SoccerBall,
+  'plus': Plus,
+  'plus.circle.fill': PlusCircle,
+  'xmark': X,
+  'camera.fill': Camera,
+  'minus': Minus,
+  'lock.fill': Lock,
+  'lock.open.fill': LockOpen,
 } as Record<string, React.ComponentType<any>>;
+
 
 /**
  * An icon component that uses Phosphor icons across all platforms.

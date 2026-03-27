@@ -34,6 +34,8 @@ model User {
   stadiums           Stadium[]  @relation("ManagerStadiums")
   assignedStadium    Stadium?   @relation("GuardStadium", fields: [assignedStadiumId], references: [id], onDelete: SetNull)
   bookings           Booking[]  @relation("PlayerBookings")
+  teams              Team[]     @relation("TeamMembers")
+  ledTeams           Team[]     @relation("TeamLeader")
 
   @@map("users")
 }
@@ -82,6 +84,25 @@ model Booking {
   updatedAt   DateTime      @updatedAt
 
   @@map("bookings")
+}
+
+/// ///////////////////////////////////////////////////
+/// /////////////////// TEAM MODEL ////////////////////
+/// ///////////////////////////////////////////////////
+model Team {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  logo        String?
+  maxMembers  Int      @default(10)
+  isPublic    Boolean  @default(true)
+  leaderId    String
+  leader      User     @relation("TeamLeader", fields: [leaderId], references: [id])
+  members     User[]   @relation("TeamMembers")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("teams")
 }
 
 /// ///////////////////////////////////////////////////

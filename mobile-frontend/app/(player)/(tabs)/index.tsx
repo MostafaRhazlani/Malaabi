@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { HeroCard } from '@/components/player/home/hero-card';
 import { FilterBar } from '@/components/ui/filter-bar';
-import { RecentStadiums } from '@/components/player/home/recent-stadiums';      
+import { RecentStadiums } from '@/components/player/home/recent-stadiums';
 
 const FILTERS = ['Tout', '5-5', '7-7', '8-8', '11-11', 'Indoor'];
 
