@@ -65,9 +65,7 @@ export class ManagerStadiumsController {
   }
 
   @Post(':id/photos')
-  @UseInterceptors(
-    FilesInterceptor('photos', 10, { storage: memoryStorage() }),
-  )
+  @UseInterceptors(FilesInterceptor('photos', 10, { storage: memoryStorage() }))
   uploadPhotos(
     @Request() req: ExpressRequest & { user: AuthenticatedUser },
     @Param('id') id: string,
@@ -94,4 +92,3 @@ export class ManagerStadiumsController {
     return this.stadiumsService.deleteStadium(req.user.user_id, id);
   }
 }
-

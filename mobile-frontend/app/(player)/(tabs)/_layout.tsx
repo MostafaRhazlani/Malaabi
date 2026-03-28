@@ -7,7 +7,6 @@ import { AuthService } from '@/services/auth.service';
 import { useAppDispatch } from '@/store/hooks';
 import { clearUser } from '@/store/slices/authSlice';
 import { ROUTES } from '@/constants/routes';
-import { IconSymbolName } from '@/components/ui/icon-symbol';
 import { TabButton } from '@/components/ui/tab-button';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
