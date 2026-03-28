@@ -10,7 +10,15 @@ import { UploadModule } from './upload/upload.module';
 import { PlayerModule } from './player/player.module';
 
 @Module({
-  imports: [PrismaModule, UploadModule, UserModule, AuthModule, AdminModule, ManagerModule, PlayerModule],
+  imports: [
+    PrismaModule,
+    UploadModule,
+    UserModule,
+    AuthModule,
+    AdminModule,
+    ManagerModule,
+    PlayerModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

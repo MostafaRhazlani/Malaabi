@@ -11,9 +11,10 @@ export function FilterBar({ filters, activeFilter, onFilterPress }: FilterBarPro
   return (
     <ScrollView
       className='bg-theme-light-background dark:bg-theme-dark-background'
+      style={{ flexGrow: 0, maxHeight: 56 }}
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 16, gap: 20 }}
+      contentContainerStyle={{ paddingHorizontal: 16, gap: 20, alignItems: 'center' }}
     >
       {filters.map((filter) => {
         const isActive = activeFilter === filter;

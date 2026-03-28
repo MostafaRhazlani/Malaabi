@@ -36,6 +36,7 @@ model User {
   bookings           Booking[]  @relation("PlayerBookings")
   teams              Team[]     @relation("TeamMembers")
   ledTeams           Team[]     @relation("TeamLeader")
+  teamRequests       TeamJoinRequest[] @relation("PlayerRequests")
 
   @@map("users")
 }
@@ -99,6 +100,7 @@ model Team {
   leaderId    String
   leader      User     @relation("TeamLeader", fields: [leaderId], references: [id])
   members     User[]   @relation("TeamMembers")
+  requests    TeamJoinRequest[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -156,4 +158,30 @@ enum Position {
   DEF
   MID
   FWD
+}
+
+model TeamJoinRequest {
+  id        String @id @default(uuid())
+  teamId    String
+  team      Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  playerId  String
+  player    User   @relation("PlayerRequests", fields: [playerId], references: [id], onDelete: Cascade)
+  status    RequestStatus @default(PENDING)
+  type      RequestType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, playerId])
+  @@map("team_join_requests")
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum RequestType {
+  REQUEST
+  INVITATION
 }

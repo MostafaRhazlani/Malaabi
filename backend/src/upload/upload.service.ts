@@ -20,7 +20,7 @@ export class UploadService {
     folder: string,
     files: Express.Multer.File[],
   ): Promise<string[]> {
-    if (!files.length) return [];
+    if (!files || !files.length) return [];
 
     const invalid = files.filter((f) => !ALLOWED_MIME.has(f.mimetype));
     if (invalid.length) {
@@ -40,6 +40,11 @@ export class UploadService {
         return `/uploads/${folder}/${filename}`;
       }),
     );
+  }
+
+  async saveFile(folder: string, file: Express.Multer.File): Promise<string> {
+    const saved = await this.saveFiles(folder, [file]);
+    return saved[0];
   }
 
   async deleteFile(urlPath: string): Promise<void> {

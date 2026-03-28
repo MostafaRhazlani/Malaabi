@@ -11,6 +11,7 @@ import {
   PaperPlaneTilt,
   Code,
   CaretRight,
+  CaretLeft,
   MapPin,
   Bell,
   SignOut,
@@ -32,10 +33,15 @@ import {
   Minus,
   Lock,
   LockOpen,
+  BellSlash,
+  Tray,
+  UserPlus,
+  Check,
+  Note,
+  UserFocus,
+  MagnifyingGlassPlus,
+  ArrowRight,
 } from 'phosphor-react-native';
-
-type IconMapping = Record<SymbolViewProps['name'], React.ComponentType<any>>;
-export type IconSymbolName = keyof typeof MAPPING;
 
 /**
  * Map SF Symbols to Phosphor icons.
@@ -47,14 +53,16 @@ const MAPPING = {
   'heart.fill': Heart,
   'heart': Heart,
   'person.3.fill': UsersThree,
+  'person.3': UsersThree,
   'person.2.fill': Users,
   'person.fill': User,
   'paperplane.fill': PaperPlaneTilt,
   'chevron.left.forwardslash.chevron.right': Code,
   'chevron.right': CaretRight,
-  'chevron.left': ArrowLeft,
+  'chevron.left': CaretLeft,
   'map': MapPin,
   'bell.fill': Bell,
+  'bell.slash.fill': BellSlash,
   'rectangle.portrait.and.arrow.right': SignOut,
   'bubble.right.fill': ChatCircle,
   'sportscourt.fill': SoccerBall,
@@ -74,8 +82,15 @@ const MAPPING = {
   'minus': Minus,
   'lock.fill': Lock,
   'lock.open.fill': LockOpen,
+  'tray': Tray,
+  'person.badge.plus': UserPlus,
+  'checkmark': Check,
+  'checkmark.circle.fill': Check,
+  'arrow.right': ArrowRight,
+  'person.fill.questionmark': UserFocus,
 } as Record<string, React.ComponentType<any>>;
 
+export type IconSymbolName = keyof typeof MAPPING;
 
 /**
  * An icon component that uses Phosphor icons across all platforms.
@@ -96,5 +111,11 @@ export function IconSymbol({
   weight?: SymbolWeight | 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone';
 }) {
   const Icon = MAPPING[name];
-  return <Icon color={color} size={size} weight={weight} style={style} />;
+  
+  if (!Icon) {
+      console.warn(`IconSymbol: Icon "${name}" not found in MAPPING`);
+      return null;
+  }
+
+  return <Icon color={color} size={size} weight={weight === 'fill' ? 'fill' : weight} style={style} />;
 }

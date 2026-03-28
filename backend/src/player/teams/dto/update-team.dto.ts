@@ -9,25 +9,28 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class CreateTeamDto {
-  @ApiProperty()
+export class UpdateTeamDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Max members from 5 to 20' })
+  @ApiProperty({ description: 'Max members from 5 to 20', required: false })
+  @IsOptional()
   @IsInt()
   @Min(5)
   @Max(20)
   @Transform(({ value }) => parseInt(value, 10))
-  maxMembers: number;
+  maxMembers?: number;
 
-  @ApiProperty({ default: true })
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsBoolean()
   @Transform(({ value }) => value === 'true' || value === true)
-  isPublic: boolean;
+  isPublic?: boolean;
 }

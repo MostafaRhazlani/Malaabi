@@ -3,6 +3,7 @@ import { View, TextInput, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from './icon-symbol';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearSearchQuery, SearchScope, setSearchQuery } from '@/store/slices/searchSlice';
 import { RootState } from '@/store/store';
@@ -23,16 +24,33 @@ const ROUTE_SCOPE_MAP: Record<string, SearchScope> = {
 export function CustomHeader({ title, routeName }: CustomHeaderProps) {
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
+  const router = useRouter();
+  const params = useLocalSearchParams<{ showBack?: string }>();
   const dispatch = useDispatch();
   const scope = routeName ? ROUTE_SCOPE_MAP[routeName] : undefined;
   const searchQuery = useSelector((state: RootState) => (scope ? state.search[scope] : ''));
   const isEditable = Boolean(scope);
+  const showSearchBackButton =
+    routeName === 'search' && params.showBack === '1' && router.canGoBack();
 
   return (
     <View
       style={{ paddingTop: insets.top + 10 }}
       className="px-4 flex-row items-center gap-3"
     >
+      {showSearchBackButton && (
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="items-center justify-center"
+        >
+          <IconSymbol
+            name="chevron.left"
+            size={20}
+            color={colorScheme === 'dark' ? '#CBD5E1' : '#475569'}
+          />
+        </TouchableOpacity>
+      )}
+
       {/* Search Input Container */}
       <View className="flex-1 flex-row h-12 items-center rounded-full pl-3 pr-1.5 border border-theme-light-tint dark:border-theme-dark-tint bg-white dark:bg-slate-800">
         <TextInput
