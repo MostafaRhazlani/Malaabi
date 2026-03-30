@@ -37,10 +37,18 @@ import {
   Tray,
   UserPlus,
   Check,
-  Note,
   UserFocus,
-  MagnifyingGlassPlus,
   ArrowRight,
+  Ticket,
+  EnvelopeSimple,
+  Calendar,
+  GenderIntersex,
+  PencilSimple,
+  Briefcase,
+  Wallet,
+  Question,
+  Gear,
+  ShoppingBag,
 } from 'phosphor-react-native';
 
 /**
@@ -88,6 +96,16 @@ const MAPPING = {
   'checkmark.circle.fill': Check,
   'arrow.right': ArrowRight,
   'person.fill.questionmark': UserFocus,
+  'ticket': Ticket,
+  'envelope.fill': EnvelopeSimple,
+  'calendar': Calendar,
+  'person.fill.viewfinder': GenderIntersex,
+  'pencil': PencilSimple,
+  'briefcase': Briefcase,
+  'creditcard.fill': Wallet,
+  'questionmark.circle.fill': Question,
+  'gearshape.fill': Gear,
+  'bag.fill': ShoppingBag,
 } as Record<string, React.ComponentType<any>>;
 
 export type IconSymbolName = keyof typeof MAPPING;

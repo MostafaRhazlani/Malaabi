@@ -54,7 +54,16 @@ export class AuthService {
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
     return {
       message: 'User registered successfully',
-      user: { user_id: user.id, email: user.email, role: user.role },
+      user: {
+        user_id: user.id,
+        email: user.email,
+        role: user.role,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        birth_date: user.birth_date,
+        position: user.position,
+        profile_img: user.profile_img,
+      },
       ...tokens,
     };
   }
@@ -82,6 +91,11 @@ export class AuthService {
         user_id: user.id,
         email: user.email,
         role: user.role,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        birth_date: user.birth_date,
+        position: user.position,
+        profile_img: user.profile_img,
       },
       ...tokens,
     };

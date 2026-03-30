@@ -61,7 +61,18 @@ export default function RegisterScreen() {
       if (!result) {
         setError("Registration failed. Please try again.");
       } else if (result.role === 'PLAYER') {
-        dispatch(setUser({ id: result.id, email: result.email, role: result.role }));
+        dispatch(
+          setUser({
+            id: result.id,
+            email: result.email,
+            role: result.role,
+            firstName: result.firstName,
+            lastName: result.lastName,
+            birthDate: result.birthDate,
+            position: result.position,
+            profileImg: result.profileImg,
+          }),
+        );
         router.replace(ROUTES.PLAYER);
       } else {
         await AuthService.logout();

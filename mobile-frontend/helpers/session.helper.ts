@@ -8,6 +8,13 @@ export interface AuthSession {
   refreshToken: string;
   role: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string | null;
+  gender?: string | null;
+  birthDate?: string | null;
+  position?: string | null;
+  profileImg?: string | null;
 }
 
 export async function saveSession(session: AuthSession): Promise<void> {
@@ -22,4 +29,11 @@ export async function getSession(): Promise<AuthSession | null> {
 
 export async function clearSession(): Promise<void> {
   await SecureStore.deleteItemAsync(AUTH_KEY);
+}
+
+export async function updateSession(update: Partial<AuthSession>): Promise<void> {
+  const current = await getSession();
+  if (current) {
+    await saveSession({ ...current, ...update });
+  }
 }
