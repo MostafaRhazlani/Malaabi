@@ -70,28 +70,56 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
         <h2 className="text-lg font-bold text-white mb-4">New Stadium</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {(["name", "city", "address"] as const).map((field) => (
-            <div key={field}>
-              <label className="block text-xs text-slate-400 mb-1 capitalize">{field}</label>
+
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1 capitalize">Name</label>
               <input
                 required
-                value={form[field] as string}
-                onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary-500"
-                placeholder={field}
+                placeholder="Name"
               />
             </div>
-          ))}
 
-          <div>
-            <label className="block text-xs text-slate-400 mb-1">Stadium Type</label>
-            <Dropdown
-              fullWidth
-              options={STADIUM_TYPE_OPTIONS}
-              value={(form.stadiumType ?? "FIVE_V_FIVE") as string}
-              onChange={(val) => setForm((f) => ({ ...f, stadiumType: val }))}
-            />
+            <div>
+              <label className="block text-xs text-slate-400 mb-1 capitalize">City</label>
+              <input
+                required
+                value={form.city}
+                onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary-500"
+                placeholder="City"
+              />
+            </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1 capitalize">Address</label>
+              <input
+                required
+                value={form.address}
+                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary-500"
+                placeholder="Address"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Stadium Type</label>
+              <Dropdown
+                fullWidth
+                options={STADIUM_TYPE_OPTIONS}
+                value={(form.stadiumType ?? "FIVE_V_FIVE") as string}
+                onChange={(val) => setForm((f) => ({ ...f, stadiumType: val }))}
+              />
+            </div>
+          </div>
+
+
 
           <div className="grid grid-cols-2 gap-3">
             <div>

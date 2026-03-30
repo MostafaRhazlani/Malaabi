@@ -30,10 +30,6 @@ export default function PlayerProfileScreen() {
   };
 
   const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
-  const avatarSource = user?.profileImg 
-    ? { uri: getAvatarUri(user.profileImg) } 
-    : require('@/assets/images/football-player.png');
-
   const themeColors = isDark ? Colors.dark : Colors.light;
 
   return (
@@ -57,7 +53,7 @@ export default function PlayerProfileScreen() {
         <View className="items-center mt-6">
           <View className="w-28 h-28 rounded-full border border-white/50 p-1 mb-3 bg-theme-light-tint dark:bg-theme-dark-tint overflow-hidden">
             <Image
-              source={avatarSource}
+              source={{ uri: getAvatarUri(user?.profileImg) ?? '' }}
               style={{ width: '100%', height: '100%', borderRadius: 999 }}
               contentFit="cover"
             />

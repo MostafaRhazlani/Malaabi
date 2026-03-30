@@ -39,7 +39,7 @@ export default function EditProfileScreen() {
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [position, setPosition] = useState(user?.position || '');
-  const [birthDate, setBirthDate] = useState(user?.birthDate ? new Date(user.birthDate) : new Date());
+  const [birthDate, setBirthDate] = useState<Date | undefined>(user?.birthDate ? new Date(user.birthDate) : undefined);
   const [gender, setGender] = useState(user?.gender || '');
   const [image, setImage] = useState<string | null>(getAvatarUri(user?.profileImg));
   const [loading, setLoading] = useState(false);
@@ -141,7 +141,7 @@ export default function EditProfileScreen() {
           <TouchableOpacity onPress={pickImage} className="relative p-1 border border-slate-300 dark:border-slate-700 rounded-full">
             <View className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
               <Image
-                source={image ? { uri: image } : require('@/assets/images/football-player.png')}
+                source={{ uri: image ?? '' }}
                 style={{ width: '100%', height: '100%' }}
                 contentFit="cover"
               />
@@ -225,7 +225,7 @@ export default function EditProfileScreen() {
                 <View className="w-12 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full self-center mb-6" />
                 <Text className="text-xl font-bold text-slate-900 dark:text-white mb-6">Select Birth Date</Text>
                 <DateTimePicker
-                  value={birthDate || new Date()}
+                  value={birthDate || new Date(2005, 0, 1)}
                   mode="date"
                   display="inline"
                   onChange={onDateChange}
@@ -243,7 +243,7 @@ export default function EditProfileScreen() {
           </Modal>
         ) : (
           <DateTimePicker
-            value={birthDate || new Date()}
+            value={birthDate || new Date(2005, 0, 1)}
             mode="date"
             display="calendar"
             onChange={onDateChange}

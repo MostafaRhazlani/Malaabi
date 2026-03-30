@@ -47,9 +47,7 @@ export const MemberCard = React.memo(
     team 
   } = member;
 
-  const avatar = profile_img
-    ? { uri: `${BASE_URL}${profile_img}` }
-    : { uri: 'https://cdn-icons-png.flaticon.com/512/1144/1144760.png' };
+  const avatar = { uri: profile_img ? `${BASE_URL}${profile_img}` : '' };
 
   return (
     <View className="bg-theme-light-card dark:bg-theme-dark-card p-4 flex-row items-center border-b border-slate-100 dark:border-slate-800">

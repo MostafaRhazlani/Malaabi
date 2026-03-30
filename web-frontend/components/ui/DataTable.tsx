@@ -23,7 +23,7 @@ export default function DataTable<T>({
   emptyMessage = "No data yet.",
 }: DataTableProps<T>) {
   return (
-    <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+    <div className="bg-white/5 border border-white/10 rounded-xl overflow-visible">
       <div className="flex items-center gap-2 px-5 py-4 border-b border-white/10">
         <Icon className="w-4 h-4 text-slate-400" />
         <h2 className="text-sm font-semibold text-white">{title}</h2>

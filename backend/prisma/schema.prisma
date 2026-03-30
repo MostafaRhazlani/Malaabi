@@ -18,7 +18,7 @@ model User {
   phone         String?
   birth_date    DateTime?
   gender        Gender?
-  profile_img   String?
+  profile_img   String?      @default("/uploads/profiles/football-player.png")
   position      Position?
   email         String       @unique
   password      String
@@ -29,7 +29,7 @@ model User {
   assignedStadiumId  String?
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
-  manager            User?      @relation("ManagerGuards", fields: [managerId], references: [id], onDelete: SetNull)
+  manager            User?      @relation("ManagerGuards", fields: [managerId], references: [id], onDelete: Cascade)
   createdGuards      User[]     @relation("ManagerGuards")
   stadiums           Stadium[]  @relation("ManagerStadiums")
   assignedStadium    Stadium?   @relation("GuardStadium", fields: [assignedStadiumId], references: [id], onDelete: SetNull)
@@ -140,7 +140,7 @@ model Team {
   maxMembers  Int      @default(10)
   isPublic    Boolean  @default(true)
   leaderId    String
-  leader      User     @relation("TeamLeader", fields: [leaderId], references: [id])
+  leader      User     @relation("TeamLeader", fields: [leaderId], references: [id], onDelete: Cascade)
   members     User[]   @relation("TeamMembers")
   requests    TeamJoinRequest[]
   createdAt   DateTime @default(now())

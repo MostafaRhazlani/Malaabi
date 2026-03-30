@@ -675,7 +675,9 @@ export class TeamsService {
     });
 
     if (currentPlayerTeam && currentPlayerTeam.id !== teamId) {
-      throw new BadRequestException(TeamsService.ONE_TEAM_MEMBERSHIP_MESSAGE);
+      throw new BadRequestException(
+        'This player is already a member of another team and cannot be accepted.',
+      );
     }
 
     const isAlreadyMember = team.members.some(
