@@ -37,8 +37,50 @@ model User {
   teams              Team[]     @relation("TeamMembers")
   ledTeams           Team[]     @relation("TeamLeader")
   teamRequests       TeamJoinRequest[] @relation("PlayerRequests")
+  wallet             Wallet?
 
   @@map("users")
+}
+
+/// ///////////////////////////////////////////////////
+/// ///////////////// WALLET MODEL ////////////////////
+/// ///////////////////////////////////////////////////
+model Wallet {
+  id        String   @id @default(uuid())
+  balance   Float    @default(0.0)
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  amount      Float
+  type        TransactionType
+  status      TransactionStatus @default(COMPLETED)
+  description String?
+  walletId    String
+  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  TOP_UP
+  DEDUCT
+  PAYMENT
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
 
 /// ///////////////////////////////////////////////////

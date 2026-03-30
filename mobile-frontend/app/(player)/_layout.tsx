@@ -20,8 +20,10 @@ export default function PlayerLayout() {
   return (
     <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="wallet" options={{ headerShown: false }} />
         <Stack.Screen name="stadium/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="team/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
     </Stack>
   );
 }
