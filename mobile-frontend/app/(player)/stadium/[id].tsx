@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import {
   Pressable,
@@ -19,6 +19,7 @@ import { StadiumManager } from '@/components/stadium/stadium-manager';
 import { StadiumDescription } from '@/components/stadium/stadium-description';
 import { StadiumLocationMap } from '@/components/stadium/stadium-location-map';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { FavoriteService } from '@/services/favorite.service';
 
 import { StadiumHeaderImage } from '@/components/stadium/stadium-header-image';
 
@@ -43,6 +44,7 @@ export default function StadiumDetailScreen() {
   const { colorScheme } = useColorScheme();
 
   const [isFavorite, setIsFavorite] = useState(false);
+  const toggleTimeoutRef = useRef<any>(null);
   const params = useLocalSearchParams<{ id: string; stadium?: string }>();
 
   const tint = useThemeColor({}, 'tint');
@@ -61,6 +63,45 @@ export default function StadiumDetailScreen() {
       img.startsWith('http') ? img : `${BASE_URL}${img}`
     );
   }, [stadium?.images]);
+
+  const lastSyncedFavorite = useRef(false);
+
+  useEffect(() => {
+    if (!stadium?.id) return;
+    const checkFavorite = async () => {
+      try {
+        const favorites = await FavoriteService.getFavorites();
+        const status = favorites.some(f => f.id === stadium.id);
+        setIsFavorite(status);
+        lastSyncedFavorite.current = status;
+      } catch (error) {
+        console.error('Error checking favorite:', error);
+      }
+    };
+    checkFavorite();
+  }, [stadium?.id]);
+
+  const toggleFavorite = () => {
+    if (!stadium?.id) return;
+
+    const newStatus = !isFavorite;
+    setIsFavorite(newStatus);
+
+    if (toggleTimeoutRef.current) clearTimeout(toggleTimeoutRef.current);
+
+    toggleTimeoutRef.current = setTimeout(async () => {
+      if (newStatus !== lastSyncedFavorite.current) {
+        try {
+          await FavoriteService.toggleFavorite(stadium.id);
+          lastSyncedFavorite.current = newStatus;
+        } catch (error) {
+          // Rollback UI on network error
+          setIsFavorite(lastSyncedFavorite.current);
+          console.error('Error toggling favorite:', error);
+        }
+      }
+    }, 500);
+  };
 
   if (!stadium) {
     return (
@@ -91,7 +132,7 @@ export default function StadiumDetailScreen() {
           <StadiumHeaderImage
             heroImages={heroImages}
             isFavorite={isFavorite}
-            onToggleFavorite={() => setIsFavorite(p => !p)}
+            onToggleFavorite={toggleFavorite}
             onBack={() => router.back()}
             tint={tint}
           />

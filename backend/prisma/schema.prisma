@@ -38,6 +38,7 @@ model User {
   ledTeams           Team[]     @relation("TeamLeader")
   teamRequests       TeamJoinRequest[] @relation("PlayerRequests")
   wallet             Wallet?
+  favoriteStadiums   Stadium[]  @relation("UserFavorites")
 
   @@map("users")
 }
@@ -104,6 +105,7 @@ model Stadium {
   manager        User          @relation("ManagerStadiums", fields: [managerId], references: [id], onDelete: Cascade)
   guards         User[]        @relation("GuardStadium")
   bookings       Booking[]
+  favoritedBy    User[]        @relation("UserFavorites")
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
