@@ -10,6 +10,9 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { clearUser } from '@/store/slices/authSlice';
 import { AuthService } from '@/services/auth.service';
 import { Colors } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { ActionCard } from '@/components/features/profile/action-card';
+import { MenuOption } from '@/components/features/profile/menu-option';
 
 const getAvatarUri = (profileImg?: string | null) => {
   if (!profileImg) return null;
@@ -30,7 +33,7 @@ export default function PlayerProfileScreen() {
   };
 
   const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
-  const themeColors = isDark ? Colors.dark : Colors.light;
+  const iconColor = useThemeColor({}, 'icon');
 
   return (
     <View className="flex-1 bg-theme-light-background dark:bg-theme-dark-background">
@@ -42,12 +45,9 @@ export default function PlayerProfileScreen() {
             className="w-12 h-12 rounded-full bg-theme-light-background dark:bg-theme-dark-background items-center justify-center border border-white/10"
             onPress={() => router.back()}
           >
-            <IconSymbol name="chevron.left" size={24} color="#FFFFFF" />
+            <IconSymbol name="chevron.left" size={24} color={iconColor} />
           </TouchableOpacity>
           <Text className="text-white text-lg font-bold">Profile</Text>
-          <TouchableOpacity className="w-12 h-12 rounded-full bg-white/5 items-center justify-center border border-white/10">
-            <IconSymbol name="bag.fill" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
         </View>
 
         <View className="items-center mt-6">
@@ -58,8 +58,8 @@ export default function PlayerProfileScreen() {
               contentFit="cover"
             />
           </View>
-          <Text className="text-white text-2xl font-bold mb-1">{fullName}</Text>
-          <Text className="text-gray-400 text-sm mb-6">{user?.email ?? ''}</Text>
+          <Text className="text-theme-light-text dark:text-theme-dark-text text-2xl font-bold mb-1">{fullName}</Text>
+          <Text className="text-theme-light-text dark:text-theme-dark-text text-sm mb-6">{user?.email ?? ''}</Text>
 
           <View className="flex-row justify-between w-full px-2 gap-3">
             <ActionCard
@@ -84,101 +84,32 @@ export default function PlayerProfileScreen() {
             iconName="creditcard.fill"
             title="Wallet"
             onPress={() => router.push(ROUTES.PLAYER_WALLET)}
-            color={themeColors.icon}
-            isDark={isDark}
             hasBorder
           />
           <MenuOption
             iconName="person.fill"
             title="Edit Profile"
             onPress={() => router.push(ROUTES.PLAYER_EDIT_PROFILE)}
-            color={themeColors.icon}
-            isDark={isDark}
             hasBorder
           />
           <MenuOption
             iconName="questionmark.circle.fill"
             title="Help & Support"
-            color={themeColors.icon}
-            isDark={isDark}
             hasBorder
           />
           <MenuOption
             iconName="gearshape.fill"
             title="Settings"
-            color={themeColors.icon}
-            isDark={isDark}
             hasBorder
           />
           <MenuOption
             iconName="rectangle.portrait.and.arrow.right"
             title="Log out"
             onPress={handleLogout}
-            color="#EF4444"
             isLogout
-            isDark={isDark}
           />
         </View>
       </ScrollView>
     </View>
-  );
-}
-
-function ActionCard({
-  iconName,
-  title,
-  onPress
-}: {
-  iconName: IconSymbolName,
-  title: string,
-  onPress?: () => void
-}) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      className="flex-1 bg-theme-light-background dark:bg-theme-dark-background border border-white/10 rounded-3xl p-4 items-center py-5"
-    >
-      <View style={{ marginBottom: 8 }}>
-        <IconSymbol name={iconName} size={28} color="#e5e7eb" />
-      </View>
-      <Text className="text-white text-xs font-medium">{title}</Text>
-    </TouchableOpacity>
-  );
-}
-
-function MenuOption({
-  iconName,
-  title,
-  isLogout = false,
-  isDark,
-  color,
-  hasBorder = false,
-  onPress
-}: {
-  iconName: IconSymbolName,
-  title: string,
-  isLogout?: boolean,
-  isDark: boolean,
-  color: string,
-  hasBorder?: boolean,
-  onPress?: () => void
-}) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      className={`flex-row items-center justify-between py-4 px-3 ${hasBorder ? 'border-b border-slate-100 dark:border-slate-800 rounded-lg' : 'rounded-lg'}`}
-    >
-      <View className="flex-row items-center gap-4">
-        <View className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800/70 items-center justify-center">
-          <IconSymbol name={iconName} size={22} color={color} />
-        </View>
-        <Text className={`text-base font-bold ${isLogout ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
-          {title}
-        </Text>
-      </View>
-      {!isLogout && <IconSymbol name="chevron.right" size={20} color={isDark ? '#475569' : '#94A3B8'} />}
-    </TouchableOpacity>
   );
 }
