@@ -18,7 +18,7 @@ model User {
   phone         String?
   birth_date    DateTime?
   gender        Gender?
-  profile_img   String?
+  profile_img   String?      @default("/uploads/profiles/football-player.png")
   position      Position?
   email         String       @unique
   password      String
@@ -29,13 +29,59 @@ model User {
   assignedStadiumId  String?
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
-  manager            User?      @relation("ManagerGuards", fields: [managerId], references: [id], onDelete: SetNull)
+  manager            User?      @relation("ManagerGuards", fields: [managerId], references: [id], onDelete: Cascade)
   createdGuards      User[]     @relation("ManagerGuards")
   stadiums           Stadium[]  @relation("ManagerStadiums")
   assignedStadium    Stadium?   @relation("GuardStadium", fields: [assignedStadiumId], references: [id], onDelete: SetNull)
   bookings           Booking[]  @relation("PlayerBookings")
+  teams              Team[]     @relation("TeamMembers")
+  ledTeams           Team[]     @relation("TeamLeader")
+  teamRequests       TeamJoinRequest[] @relation("PlayerRequests")
+  wallet             Wallet?
+  favoriteStadiums   Stadium[]  @relation("UserFavorites")
 
   @@map("users")
+}
+
+/// ///////////////////////////////////////////////////
+/// ///////////////// WALLET MODEL ////////////////////
+/// ///////////////////////////////////////////////////
+model Wallet {
+  id        String   @id @default(uuid())
+  balance   Float    @default(0.0)
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  amount      Float
+  type        TransactionType
+  status      TransactionStatus @default(COMPLETED)
+  description String?
+  walletId    String
+  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  TOP_UP
+  DEDUCT
+  PAYMENT
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
 
 /// ///////////////////////////////////////////////////
@@ -47,13 +93,19 @@ model Stadium {
   city           String
   address        String
   images         String[]      @default([])
+  latitude       Float?
+  longitude      Float?
   status         StadiumStatus @default(PENDING)
+  stadiumType    StadiumType   @default(FIVE_V_FIVE)
   priceFullMatch Float         @default(0)
   priceHalfMatch Float         @default(0)
+  startTime      String        @default("08:00")
+  endTime        String        @default("23:00")
   managerId      String
   manager        User          @relation("ManagerStadiums", fields: [managerId], references: [id], onDelete: Cascade)
   guards         User[]        @relation("GuardStadium")
   bookings       Booking[]
+  favoritedBy    User[]        @relation("UserFavorites")
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -64,19 +116,40 @@ model Stadium {
 /// ///////////////// BOOKING MODEL ///////////////////
 /// ///////////////////////////////////////////////////
 model Booking {
-  id          String        @id @default(uuid())
-  totalAmount Float
-  matchType   MatchType     @default(FULL)
-  scheduledAt DateTime?
-  status      BookingStatus @default(PENDING)
-  playerId    String
-  stadiumId   String
-  player      User          @relation("PlayerBookings", fields: [playerId], references: [id], onDelete: Cascade)
-  stadium     Stadium       @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                String        @id @default(uuid())
+  totalAmount       Float
+  matchType         MatchType     @default(FULL)
+  scheduledAt       DateTime?
+  status            BookingStatus @default(PENDING)
+  verificationToken String        @unique @default(cuid())
+  playerId          String
+  stadiumId         String
+  player            User          @relation("PlayerBookings", fields: [playerId], references: [id], onDelete: Cascade)
+  stadium           Stadium       @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@map("bookings")
+}
+
+/// ///////////////////////////////////////////////////
+/// /////////////////// TEAM MODEL ////////////////////
+/// ///////////////////////////////////////////////////
+model Team {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  logo        String?
+  maxMembers  Int      @default(10)
+  isPublic    Boolean  @default(true)
+  leaderId    String
+  leader      User     @relation("TeamLeader", fields: [leaderId], references: [id], onDelete: Cascade)
+  members     User[]   @relation("TeamMembers")
+  requests    TeamJoinRequest[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("teams")
 }
 
 /// ///////////////////////////////////////////////////
@@ -105,11 +178,20 @@ enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+  EXPIRED
 }
 
 enum MatchType {
   FULL
   HALF
+}
+
+enum StadiumType {
+  FIVE_V_FIVE
+  SEVEN_V_SEVEN
+  EIGHT_V_EIGHT
+  ELEVEN_V_ELEVEN
+  INDOOR
 }
 
 enum Gender {
@@ -122,4 +204,30 @@ enum Position {
   DEF
   MID
   FWD
+}
+
+model TeamJoinRequest {
+  id        String @id @default(uuid())
+  teamId    String
+  team      Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  playerId  String
+  player    User   @relation("PlayerRequests", fields: [playerId], references: [id], onDelete: Cascade)
+  status    RequestStatus @default(PENDING)
+  type      RequestType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, playerId])
+  @@map("team_join_requests")
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum RequestType {
+  REQUEST
+  INVITATION
 }

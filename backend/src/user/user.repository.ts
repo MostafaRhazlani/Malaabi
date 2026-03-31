@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role } from 'generated/prisma/enums';
+import { Role } from '../../generated/prisma/enums';
 
 @Injectable()
 export class UserRepository {
@@ -18,10 +18,27 @@ export class UserRepository {
     });
   }
 
+  async findAll() {
+    return this.prisma.user.findMany();
+  }
+
   async updateRefreshToken(id: string, refreshToken: string | null) {
     return this.prisma.user.update({
       where: { id },
       data: { refresh_token: refreshToken },
+    });
+  }
+
+  async updateUser(id: string, data: any) {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: string) {
+    return this.prisma.user.delete({
+      where: { id },
     });
   }
 

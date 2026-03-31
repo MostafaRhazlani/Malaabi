@@ -1,4 +1,4 @@
-import { Slot, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { useAppSelector } from '@/store/hooks';
 import { ROUTES } from '@/constants/routes';
@@ -17,5 +17,13 @@ export default function PlayerLayout() {
   // Return null here to avoid a second spinner or a flash of unauthorized content.
   if (isLoading || user?.role !== 'PLAYER') return null;
 
-  return <Slot />;
+  return (
+    <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="wallet" options={{ headerShown: false }} />
+        <Stack.Screen name="stadium/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="team/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+    </Stack>
+  );
 }

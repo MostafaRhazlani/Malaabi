@@ -12,7 +12,7 @@ export default function GuardLayout() {
     if (user?.role !== 'GUARD') {
       router.replace(ROUTES.AUTH_LOGIN);
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, router]);
 
   if (isLoading || user?.role !== 'GUARD') return null;
 

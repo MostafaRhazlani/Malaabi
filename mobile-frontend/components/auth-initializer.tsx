@@ -9,8 +9,19 @@ export default function AuthInitializer() {
   useEffect(() => {
     const hydrate = async () => {
       const session = await AuthService.getSession();
-      if (session?.accessToken && session.role && session.email) {
-        dispatch(setUser({ email: session.email, role: session.role }));
+      if (session?.accessToken && session.role && session.email && session.userId) {
+        dispatch(
+          setUser({
+            id: session.userId,
+            email: session.email,
+            role: session.role,
+            firstName: session.firstName,
+            lastName: session.lastName,
+            birthDate: session.birthDate,
+            position: session.position,
+            profileImg: session.profileImg,
+          }),
+        );
       } else {
         dispatch(clearUser());
       }

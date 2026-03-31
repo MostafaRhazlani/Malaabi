@@ -7,11 +7,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  useColorScheme,
   Image,
 } from "react-native";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { AppleLogo, TwitterLogo, Eye, EyeSlash } from "phosphor-react-native";
 import Svg, { Path } from "react-native-svg";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -22,8 +22,7 @@ import { ROUTES } from "@/constants/routes";
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useColorScheme();
   const dispatch = useAppDispatch();
 
   const [firstName, setFirstName] = useState("");
@@ -62,7 +61,18 @@ export default function RegisterScreen() {
       if (!result) {
         setError("Registration failed. Please try again.");
       } else if (result.role === 'PLAYER') {
-        dispatch(setUser({ email: result.email, role: result.role }));
+        dispatch(
+          setUser({
+            id: result.id,
+            email: result.email,
+            role: result.role,
+            firstName: result.firstName,
+            lastName: result.lastName,
+            birthDate: result.birthDate,
+            position: result.position,
+            profileImg: result.profileImg,
+          }),
+        );
         router.replace(ROUTES.PLAYER);
       } else {
         await AuthService.logout();
@@ -78,7 +88,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-zinc-950">
+    <SafeAreaView className="flex-1">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -108,10 +118,10 @@ export default function RegisterScreen() {
 
             {/* Social Logins */}
             <View className="flex-row gap-4 mt-4 w-full justify-between">
-              <TouchableOpacity className="flex-1 h-[56px] rounded-2xl border border-gray-200 dark:border-gray-800 justify-center items-center bg-white dark:bg-zinc-900">
-                <FontAwesome name="apple" size={24} color={isDark ? "white" : "black"} />
+              <TouchableOpacity className="flex-1 h-[56px] rounded-2xl border border-gray-200 dark:border-gray-800 justify-center items-center bg-theme-light-card dark:bg-theme-dark-card">
+                <AppleLogo size={24} weight="fill" color={isDark ? "white" : "black"} />
               </TouchableOpacity>
-              <TouchableOpacity className="flex-1 h-[56px] rounded-2xl border border-gray-200 dark:border-gray-800 justify-center items-center bg-white dark:bg-zinc-900">
+              <TouchableOpacity className="flex-1 h-[56px] rounded-2xl border border-gray-200 dark:border-gray-800 justify-center items-center bg-theme-light-card dark:bg-theme-dark-card">
                 <Svg width="24" height="24" viewBox="0 0 24 24">
                   <Path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                   <Path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -119,8 +129,8 @@ export default function RegisterScreen() {
                   <Path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 </Svg>
               </TouchableOpacity>
-              <TouchableOpacity className="flex-1 h-[56px] rounded-2xl border border-gray-200 dark:border-gray-800 justify-center items-center bg-white dark:bg-zinc-900">
-                <FontAwesome name="twitter" size={24} color="#1DA1F2" />
+              <TouchableOpacity className="flex-1 h-[56px] rounded-2xl border border-gray-200 dark:border-gray-800 justify-center items-center bg-theme-light-card dark:bg-theme-dark-card">
+                <TwitterLogo size={24} weight="fill" color="#1DA1F2" />
               </TouchableOpacity>
             </View>
 
@@ -138,7 +148,7 @@ export default function RegisterScreen() {
               )}
 
               <View className="flex-row gap-4 w-full h-[56px]">
-                <View className="flex-1 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 justify-center">
+                <View className="flex-1 border border-gray-200 dark:border-gray-800 rounded-2xl bg-theme-light-card dark:bg-theme-dark-card justify-center">
                   <TextInput
                     className="px-5 text-[15px] text-gray-900 dark:text-white"
                     placeholder="First Name"
@@ -149,7 +159,7 @@ export default function RegisterScreen() {
                     autoComplete="given-name"
                   />
                 </View>
-                <View className="flex-1 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 justify-center">
+                <View className="flex-1 border border-gray-200 dark:border-gray-800 rounded-2xl bg-theme-light-card dark:bg-theme-dark-card justify-center">
                   <TextInput
                     className="px-5 text-[15px] text-gray-900 dark:text-white"
                     placeholder="Last Name"
@@ -162,7 +172,7 @@ export default function RegisterScreen() {
                 </View>
               </View>
 
-              <View className="w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 justify-center">
+              <View className="w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-theme-light-card dark:bg-theme-dark-card justify-center">
                 <TextInput
                   className="px-5 text-[15px] text-gray-900 dark:text-white"
                   placeholder="Enter your email..."
@@ -175,9 +185,9 @@ export default function RegisterScreen() {
                 />
               </View>
 
-              <View className="flex-row items-center w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 px-5">
+              <View className="flex-row items-center w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-theme-light-card dark:bg-theme-dark-card px-5">
                 <TextInput
-                  className="flex-1 text-[15px] text-gray-900 dark:text-white pb-1"
+                  className="flex-1 text-[15px] text-gray-900 dark:text-white"
                   placeholder="Password"
                   placeholderTextColor="#9CA3AF"
                   value={password}
@@ -190,13 +200,17 @@ export default function RegisterScreen() {
                   }}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="ml-2">
-                  <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={22} color="#6B7280" />
+                  {showPassword ? (
+                    <EyeSlash size={22} color="#6B7280" />
+                  ) : (
+                    <Eye size={22} color="#6B7280" />
+                  )}
                 </TouchableOpacity>
               </View>
 
-              <View className="flex-row items-center w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-zinc-900 px-5">
+              <View className="flex-row items-center w-full h-[56px] border border-gray-200 dark:border-gray-800 rounded-2xl bg-theme-light-card dark:bg-theme-dark-card px-5">
                 <TextInput
-                  className="flex-1 text-[15px] text-gray-900 dark:text-white pb-1"
+                  className="flex-1 text-[15px] text-gray-900 dark:text-white"
                   placeholder="Confirm Password"
                   placeholderTextColor="#9CA3AF"
                   value={confirmPassword}
@@ -209,14 +223,18 @@ export default function RegisterScreen() {
                   }}
                 />
                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} className="ml-2">
-                  <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={22} color="#6B7280" />
+                  {showConfirmPassword ? (
+                    <EyeSlash size={22} color="#6B7280" />
+                  ) : (
+                    <Eye size={22} color="#6B7280" />
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
 
             {/* Action */}
             <TouchableOpacity
-              className="w-full h-[56px] bg-[#111111] dark:bg-white rounded-2xl items-center justify-center mb-8 shadow-sm"
+              className="w-full h-[56px] bg-theme-light-tint dark:bg-theme-dark-tint rounded-2xl items-center justify-center mb-8 shadow-sm"
               onPress={handleRegister}
               activeOpacity={0.8}
               disabled={loading}

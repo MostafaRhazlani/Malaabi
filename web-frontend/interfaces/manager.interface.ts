@@ -26,8 +26,13 @@ export interface ManagerStadium {
   address: string;
   images: string[];
   status: StadiumStatus;
+  stadiumType: string;
+  latitude?: number;
+  longitude?: number;
   priceFullMatch: number;
   priceHalfMatch: number;
+  startTime?: string;
+  endTime?: string;
   createdAt: string;
 }
 

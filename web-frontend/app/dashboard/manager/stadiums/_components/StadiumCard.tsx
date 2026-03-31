@@ -25,12 +25,12 @@ const STATUS_ICONS: Record<StadiumStatus, React.ElementType> = {
 
 interface Props {
   stadium: ManagerStadium;
-  onEditPrices: (stadium: ManagerStadium) => void;
+  onEditInfo: (stadium: ManagerStadium) => void;
   onPhotos: (stadium: ManagerStadium) => void;
   onDelete: (stadium: ManagerStadium) => void;
 }
 
-export default function StadiumCard({ stadium, onEditPrices, onPhotos, onDelete }: Props) {
+export default function StadiumCard({ stadium, onEditInfo, onPhotos, onDelete }: Props) {
   const StatusIcon = STATUS_ICONS[stadium.status];
   const cover = stadium.images?.[0];
 
@@ -76,11 +76,11 @@ export default function StadiumCard({ stadium, onEditPrices, onPhotos, onDelete 
 
         <div className="flex items-center gap-3 mt-auto pt-1 border-t border-white/5">
           <button
-            onClick={() => onEditPrices(stadium)}
+            onClick={() => onEditInfo(stadium)}
             className="flex items-center gap-1 text-xs text-primary-400 hover:text-primary-300 transition-colors"
           >
             <RiEditLine className="w-3.5 h-3.5" />
-            Edit Prices
+            Edit Info
           </button>
           <button
             onClick={() => onPhotos(stadium)}
