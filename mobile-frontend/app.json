@@ -43,7 +43,13 @@
       ],
       "expo-secure-store",
       "expo-web-browser",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Malaabi to access your camera to scan match tickets."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

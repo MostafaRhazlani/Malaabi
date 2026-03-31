@@ -116,17 +116,18 @@ model Stadium {
 /// ///////////////// BOOKING MODEL ///////////////////
 /// ///////////////////////////////////////////////////
 model Booking {
-  id          String        @id @default(uuid())
-  totalAmount Float
-  matchType   MatchType     @default(FULL)
-  scheduledAt DateTime?
-  status      BookingStatus @default(PENDING)
-  playerId    String
-  stadiumId   String
-  player      User          @relation("PlayerBookings", fields: [playerId], references: [id], onDelete: Cascade)
-  stadium     Stadium       @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                String        @id @default(uuid())
+  totalAmount       Float
+  matchType         MatchType     @default(FULL)
+  scheduledAt       DateTime?
+  status            BookingStatus @default(PENDING)
+  verificationToken String        @unique @default(cuid())
+  playerId          String
+  stadiumId         String
+  player            User          @relation("PlayerBookings", fields: [playerId], references: [id], onDelete: Cascade)
+  stadium           Stadium       @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@map("bookings")
 }

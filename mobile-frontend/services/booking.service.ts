@@ -17,6 +17,7 @@ export interface Booking {
   matchType: 'FULL' | 'HALF';
   scheduledAt: string;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED';
+  verificationToken: string;
   stadium: {
     name: string;
     city: string;

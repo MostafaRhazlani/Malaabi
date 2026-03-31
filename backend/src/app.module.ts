@@ -6,6 +6,7 @@ import { AdminModule } from './admin/admin.module';
 import { ManagerModule } from './manager/manager.module';
 import { UploadModule } from './upload/upload.module';
 import { PlayerModule } from './player/player.module';
+import { GuardModule } from './guard/guard.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PlayerModule } from './player/player.module';
     AdminModule,
     ManagerModule,
     PlayerModule,
+    GuardModule,
   ],
   controllers: [],
   providers: []

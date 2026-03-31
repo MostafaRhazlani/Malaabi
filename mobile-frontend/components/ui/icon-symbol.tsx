@@ -51,6 +51,7 @@ import {
   ShoppingBag,
   SquaresFour,
   Clock,
+  Stack,
 } from 'phosphor-react-native';
 
 /**
@@ -111,6 +112,7 @@ const MAPPING = {
   'rectangle.grid.2x2.fill': SquaresFour,
   'map.fill': MapPin,
   'clock.fill': Clock,
+  'rectangle.stack.fill': Stack,
 } as Record<string, React.ComponentType<any>>;
 
 export type IconSymbolName = keyof typeof MAPPING;

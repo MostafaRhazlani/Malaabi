@@ -65,12 +65,12 @@ export class PlayerBookingsService {
       if (isFullTaken) {
         throw new BadRequestException('Stadium is already fully booked for this time');
       }
-
-      if (matchType === 'FULL' && halfCount > 0) {
+      
+      if (matchType === MatchType.FULL && halfCount > 0) {
         throw new BadRequestException('Stadium is partially booked, only half-match is available');
       }
 
-      if (matchType === 'HALF' && halfCount >= 2) {
+      if (matchType === MatchType.HALF && halfCount >= 2) {
         throw new BadRequestException('Stadium is already fully booked for this time');
       }
 

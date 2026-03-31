@@ -12,6 +12,7 @@ import { CustomHeader } from '@/components/ui/custom-header';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { FilterBar } from '@/components/ui/filter-bar';
+import { TicketModal } from '@/components/features/bookings/ticket-modal';
 
 const FILTERS = ['Upcoming', 'History'];
 
@@ -21,6 +22,10 @@ export default function PlayerBookingsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState('Upcoming');
+  
+  // Ticket Modal State
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [ticketVisible, setTicketVisible] = useState(false);
   
   const iconColor = useThemeColor({}, 'icon');
   const searchQuery = useSelector((state: RootState) => state.search.bookings);
@@ -59,6 +64,13 @@ export default function PlayerBookingsScreen() {
     fetchBookings();
   };
 
+  const handlePressBooking = (booking: Booking) => {
+    if (booking.status === 'PENDING') {
+      setSelectedBooking(booking);
+      setTicketVisible(true);
+    }
+  };
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-theme-light-background dark:bg-theme-dark-background">
@@ -85,7 +97,10 @@ export default function PlayerBookingsScreen() {
           data={filteredBookings}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <BookingCard booking={item} onPress={() => {}} />
+            <BookingCard 
+              booking={item} 
+              onPress={() => handlePressBooking(item)} 
+            />
           )}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, paddingTop: 16 }}
           refreshControl={
@@ -103,6 +118,12 @@ export default function PlayerBookingsScreen() {
           }
         />
       </SafeAreaView>
+
+      <TicketModal 
+        visible={ticketVisible} 
+        onClose={() => setTicketVisible(false)} 
+        booking={selectedBooking} 
+      />
     </View>
   );
 }
@@ -160,22 +181,24 @@ function BookingCard({ booking, onPress }: { booking: Booking, onPress: () => vo
       {/* Time footer */}
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <View className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl">
-             <IconSymbol name="calendar" size={16} color="#22C55E" />
-          </View>
+          <IconSymbol name="calendar" size={16} color="#22C55E" />
           <Text className="text-xs font-semibold text-slate-600 dark:text-slate-300">
             {format(date, 'EEE, d MMM')}
           </Text>
         </View>
 
         <View className="flex-row items-center gap-2">
-          <View className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl">
-             <IconSymbol name="clock.fill" size={16} color="#22C55E" />
-          </View>
+          <IconSymbol name="clock.fill" size={16} color="#22C55E" />
           <Text className="text-xs font-semibold text-slate-600 dark:text-slate-300">
             {format(date, 'HH:mm')}
           </Text>
         </View>
+        
+        {isPending && (
+          <View className="bg-emerald-500/10 dark:bg-emerald-500/20 px-3 py-1.5 rounded-full">
+            <Text className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase">View Ticket</Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
