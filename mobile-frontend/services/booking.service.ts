@@ -43,4 +43,9 @@ export const BookingService = {
     });
     return response.data;
   },
+
+  async cancelBooking(bookingId: string) {
+    const response = await api.post(`/player/bookings/${bookingId}/cancel`);
+    return response.data;
+  },
 };

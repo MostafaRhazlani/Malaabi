@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Req, Query, Param } from '@nestjs/common';
 import { PlayerBookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -30,5 +30,10 @@ export class PlayerBookingsController {
     @Query('endDate') endDate?: string
   ) {
     return this.bookingsService.getTakenSlots(stadiumId, date, startDate, endDate);
+  }
+
+  @Post(':id/cancel')
+  cancel(@Req() req: any, @Param('id') id: string) {
+    return this.bookingsService.cancel(req.user.user_id, id);
   }
 }

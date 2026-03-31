@@ -108,7 +108,7 @@ export class PlayerBookingsService {
     const now = new Date();
     const expiryWindow = 15 * 60 * 1000; // 15 mins in ms
 
-    // 1. Auto-expire old pending bookings (past 15 mins)
+    // Auto-expire old pending bookings (past 15 mins)
     await this.prisma.booking.updateMany({
       where: {
         status: BookingStatus.PENDING,
@@ -116,11 +116,6 @@ export class PlayerBookingsService {
       },
       data: { status: BookingStatus.EXPIRED },
     });
-
-    // 2. Compensation Logic:
-    // If user is CONFIRMED for a HALF match, but their partner is EXPIRED (No-Show)
-    // We give them a 50% refund for the inconvenience. 
-    // We only trigger this once by checking if a refund transaction exists.
     
     // Find half-matches where this user was CONFIRMED
     const confirmedHalfBookings = await this.prisma.booking.findMany({
@@ -228,5 +223,70 @@ export class PlayerBookingsService {
       slots,
       currentTime: new Date().toISOString(),
     };
+  }
+
+  async cancel(userId: string, bookingId: string) {
+    const now = new Date();
+    const fourHoursInMs = 4 * 60 * 60 * 1000;
+
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId, playerId: userId },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (!booking.scheduledAt) {
+      throw new BadRequestException('Booking has no scheduled date');
+    }
+
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new BadRequestException('Only pending bookings can be cancelled');
+    }
+
+    if (now >= booking.scheduledAt) {
+      throw new BadRequestException('Cannot cancel a match that has already started');
+    }
+
+    // Determine refund percentage
+    const timeDiff = booking.scheduledAt.getTime() - now.getTime();
+    const isLateCancellation = timeDiff < fourHoursInMs;
+    const refundPercentage = isLateCancellation ? 0.5 : 1.0;
+    const refundAmount = booking.totalAmount * refundPercentage;
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Update Booking status
+      const updatedBooking = await tx.booking.update({
+        where: { id: bookingId },
+        data: { status: BookingStatus.CANCELLED },
+      });
+
+      // 2. Refund Wallet
+      const wallet = await tx.wallet.findUnique({ where: { userId } });
+      if (wallet) {
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: { balance: { increment: refundAmount } },
+        });
+
+        // 3. Create Refund Transaction
+        await tx.transaction.create({
+          data: {
+            walletId: wallet.id,
+            amount: refundAmount,
+            type: TransactionType.REFUND,
+            description: `Refund for Match #${bookingId.slice(0, 8)} (${isLateCancellation ? '50% Late' : '100% Advance'} Cancellation)`,
+          },
+        });
+      }
+
+      return {
+        message: 'Booking cancelled successfully',
+        refundAmount,
+        refundPercentage: refundPercentage * 100,
+        booking: updatedBooking
+      };
+    });
   }
 }

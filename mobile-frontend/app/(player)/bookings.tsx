@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { BookingService, Booking } from '@/services/booking.service';
@@ -71,6 +71,38 @@ export default function PlayerBookingsScreen() {
     }
   };
 
+  const handleCancelBooking = (booking: Booking) => {
+    const now = new Date();
+    const scheduled = new Date(booking.scheduledAt);
+    const diffHours = (scheduled.getTime() - now.getTime()) / (1000 * 60 * 60);
+    const refundPercent = diffHours >= 4 ? 100 : 50;
+
+    Alert.alert(
+      "Cancel Match?",
+      `Matches cancelled more than 4 hours in advance get a 100% refund. Late cancellations get 50%.\n\nYou will receive a ${refundPercent}% refund.`,
+      [
+        { text: "Keep Booking", style: "cancel" },
+        { 
+          text: "Confirm Cancellation", 
+          style: "destructive",
+          onPress: async () => {
+             setLoading(true);
+             try {
+                await BookingService.cancelBooking(booking.id);
+                fetchBookings();
+                Alert.alert("Success", `Booking cancelled. ${refundPercent}% has been refunded to your wallet.`);
+             } catch (error: any) {
+                const msg = error.response?.data?.message || "Could not cancel booking";
+                Alert.alert("Error", msg);
+             } finally {
+                setLoading(false);
+             }
+          }
+        }
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-theme-light-background dark:bg-theme-dark-background">
@@ -100,6 +132,7 @@ export default function PlayerBookingsScreen() {
             <BookingCard 
               booking={item} 
               onPress={() => handlePressBooking(item)} 
+              onCancel={() => handleCancelBooking(item)}
             />
           )}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, paddingTop: 16 }}
@@ -128,7 +161,7 @@ export default function PlayerBookingsScreen() {
   );
 }
 
-function BookingCard({ booking, onPress }: { booking: Booking, onPress: () => void }) {
+function BookingCard({ booking, onPress, onCancel }: { booking: Booking, onPress: () => void, onCancel: () => void }) {
   const stadiumImage = booking.stadium.images?.[0] 
     ? `${BASE_URL}${booking.stadium.images[0]}` 
     : 'https://images.unsplash.com/photo-1518605368461-1e1e111e1ebc?w=400';
@@ -137,12 +170,12 @@ function BookingCard({ booking, onPress }: { booking: Booking, onPress: () => vo
   const isPending = booking.status === 'PENDING';
 
   return (
-    <TouchableOpacity 
-      activeOpacity={0.8}
-      onPress={onPress}
-      className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-4 border border-slate-100 dark:border-slate-700/50 shadow-sm"
-    >
-      <View className="flex-row gap-4">
+    <View className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-4 border border-slate-100 dark:border-slate-700/50 shadow-sm">
+      <TouchableOpacity 
+        activeOpacity={0.8}
+        onPress={onPress}
+        className="flex-row gap-4"
+      >
         {/* Stadium Image Thumbnail */}
         <Image 
           source={{ uri: stadiumImage }} 
@@ -174,32 +207,48 @@ function BookingCard({ booking, onPress }: { booking: Booking, onPress: () => vo
             </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
 
       <View className="h-px bg-slate-50 dark:bg-zinc-800 my-4" />
 
-      {/* Time footer */}
+      {/* Footer Actions */}
       <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center gap-2">
-          <IconSymbol name="calendar" size={16} color="#22C55E" />
-          <Text className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-            {format(date, 'EEE, d MMM')}
-          </Text>
-        </View>
+        <View className="flex-row items-center gap-4">
+          <View className="flex-row items-center gap-1.5">
+            <IconSymbol name="calendar" size={14} color="#22C55E" />
+            <Text className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+              {format(date, 'EEE, d MMM')}
+            </Text>
+          </View>
 
-        <View className="flex-row items-center gap-2">
-          <IconSymbol name="clock.fill" size={16} color="#22C55E" />
-          <Text className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-            {format(date, 'HH:mm')}
-          </Text>
+          <View className="flex-row items-center gap-1.5">
+            <IconSymbol name="clock.fill" size={14} color="#22C55E" />
+            <Text className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+              {format(date, 'HH:mm')}
+            </Text>
+          </View>
         </View>
         
-        {isPending && (
-          <View className="bg-emerald-500/10 dark:bg-emerald-500/20 px-3 py-1.5 rounded-full">
-            <Text className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase">View Ticket</Text>
-          </View>
-        )}
+        <View className="flex-row items-center gap-2">
+            {isPending && (
+              <TouchableOpacity
+                onPress={onCancel}
+                className="bg-rose-50 dark:bg-rose-500/10 px-3 py-2 rounded-full border border-rose-100 dark:border-rose-500/20"
+              >
+                <Text className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase">Cancel</Text>
+              </TouchableOpacity>
+            )}
+            
+            {isPending && (
+               <TouchableOpacity
+                 onPress={onPress}
+                 className="bg-emerald-500 px-3 py-2 rounded-full shadow-sm shadow-emerald-500/40"
+               >
+                 <Text className="text-[10px] font-black text-white uppercase">View Ticket</Text>
+               </TouchableOpacity>
+            )}
+        </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
