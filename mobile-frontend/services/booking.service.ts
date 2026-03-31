@@ -11,6 +11,20 @@ export interface TakenSlotsResponse {
   currentTime: string;
 }
 
+export interface Booking {
+  id: string;
+  totalAmount: number;
+  matchType: 'FULL' | 'HALF';
+  scheduledAt: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED';
+  stadium: {
+    name: string;
+    city: string;
+    images: string[];
+    address: string;
+  };
+}
+
 export const BookingService = {
   async create(bookingData: CreateBookingData) {
     const response = await api.post('/player/bookings', bookingData);

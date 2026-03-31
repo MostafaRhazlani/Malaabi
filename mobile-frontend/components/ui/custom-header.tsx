@@ -19,6 +19,8 @@ const ROUTE_SCOPE_MAP: Record<string, SearchScope> = {
   favorites: 'favorites',
   team: 'team',
   search: 'global',
+  bookings: 'bookings',
+  'bookings-history': 'bookings',
 };
 
 export function CustomHeader({ title, routeName }: CustomHeaderProps) {
@@ -31,7 +33,8 @@ export function CustomHeader({ title, routeName }: CustomHeaderProps) {
   const searchQuery = useSelector((state: RootState) => (scope ? state.search[scope] : ''));
   const isEditable = Boolean(scope);
   const showSearchBackButton =
-    routeName === 'search' && params.showBack === '1' && router.canGoBack();
+    (routeName === 'search' && params.showBack === '1' && router.canGoBack()) ||
+    (['bookings', 'bookings-history', 'wallet'].includes(routeName || '') && router.canGoBack());
 
   return (
     <View

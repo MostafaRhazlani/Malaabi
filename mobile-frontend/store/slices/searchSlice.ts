@@ -1,12 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type SearchScope = 'home' | 'favorites' | 'team' | 'global';
+export type SearchScope = 'home' | 'favorites' | 'team' | 'global' | 'bookings';
 
 interface SearchState {
   home: string;
   favorites: string;
   team: string;
   global: string;
+  bookings: string;
 }
 
 const initialState: SearchState = {
@@ -14,6 +15,7 @@ const initialState: SearchState = {
   favorites: '',
   team: '',
   global: '',
+  bookings: '',
 };
 
 const searchSlice = createSlice({

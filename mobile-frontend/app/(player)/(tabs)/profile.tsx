@@ -9,7 +9,6 @@ import { ROUTES } from '@/constants/routes';
 import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
 import { clearUser } from '@/store/slices/authSlice';
 import { AuthService } from '@/services/auth.service';
-import { Colors } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { ActionCard } from '@/components/features/profile/action-card';
 import { MenuOption } from '@/components/features/profile/menu-option';
@@ -23,7 +22,6 @@ const getAvatarUri = (profileImg?: string | null) => {
 export default function PlayerProfileScreen() {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
-  const { isDark } = useColorScheme();
   const dispatch = useAppDispatch();
 
   const handleLogout = async () => {
@@ -72,7 +70,8 @@ export default function PlayerProfileScreen() {
             />
             <ActionCard
               iconName="ticket"
-              title="Tickets"
+              title="My Booking"
+              onPress={() => router.push(ROUTES.PLAYER_BOOKINGS)}
             />
           </View>
         </View>
