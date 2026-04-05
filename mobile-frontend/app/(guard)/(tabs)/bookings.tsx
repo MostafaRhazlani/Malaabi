@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GuardService, GuardBooking } from '@/services/guard.service';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { format } from 'date-fns';
 import { Image } from 'expo-image';
 import { BASE_URL } from '@/services/api';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 import { FilterBar } from '@/components/ui/filter-bar';
 
@@ -18,8 +17,6 @@ export default function GuardBookingsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   
-  const iconColor = useThemeColor({}, 'icon');
-
   const fetchBookings = async () => {
     try {
       const data = await GuardService.getStadiumBookings();

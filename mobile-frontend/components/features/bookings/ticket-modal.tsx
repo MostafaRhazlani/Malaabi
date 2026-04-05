@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlurView } from 'expo-blur';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { format } from 'date-fns';
 import { Booking } from '@/services/booking.service';
@@ -16,15 +15,15 @@ interface TicketModalProps {
 }
 
 export function TicketModal({ visible, onClose, booking }: TicketModalProps) {
+   const textColor = useThemeColor({}, 'text');
+
   if (!booking) return null;
 
-  const stadiumImage = booking.stadium.images?.[0] 
-    ? `${BASE_URL}${booking.stadium.images[0]}` 
+   const stadiumImage = booking.stadium.images?.[0]
+      ? `${BASE_URL}${booking.stadium.images[0]}`
     : 'https://images.unsplash.com/photo-1518605368461-1e1e111e1ebc?w=400';
 
   const date = new Date(booking.scheduledAt);
-  const bgColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
 
   return (
     <Modal

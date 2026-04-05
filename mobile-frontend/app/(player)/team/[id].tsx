@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -66,7 +66,7 @@ export default function TeamDetailsScreen() {
 
   const requests = useMemo(() => pendingRequests, [pendingRequests]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const data = await teamService.getTeamDetails(id as string);
       setTeam(data);
@@ -103,11 +103,11 @@ export default function TeamDetailsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, user?.id]);
 
   useEffect(() => {
-    fetchData();
-  }, [id, user]);
+    void fetchData();
+  }, [fetchData]);
 
   const handleJoin = async () => {
       if (!team || (!team.isPublic && hasPendingJoinRequest)) return;

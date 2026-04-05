@@ -56,7 +56,7 @@ export default function PlayerSearchScreen() {
         if (!cancelled) {
           setInvitedPlayerIds(ids);
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setInvitedPlayerIds([]);
         }

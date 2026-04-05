@@ -16,7 +16,7 @@ export default function GuardScanScreen() {
     if (permission && !permission.granted && permission.canAskAgain) {
       requestPermission();
     }
-  }, [permission]);
+  }, [permission, requestPermission]);
 
   if (!permission) {
     return <View className="flex-1 bg-black items-center justify-center"><ActivityIndicator color="#10B981" /></View>;

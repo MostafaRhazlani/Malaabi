@@ -1,13 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { BookingService, Booking } from '@/services/booking.service';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { format } from 'date-fns';
 import { BASE_URL } from '@/services/api';
 import { Image } from 'expo-image';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { CustomHeader } from '@/components/ui/custom-header';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -17,7 +15,6 @@ import { TicketModal } from '@/components/features/bookings/ticket-modal';
 const FILTERS = ['Upcoming', 'History'];
 
 export default function PlayerBookingsScreen() {
-  const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -27,7 +24,6 @@ export default function PlayerBookingsScreen() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [ticketVisible, setTicketVisible] = useState(false);
   
-  const iconColor = useThemeColor({}, 'icon');
   const searchQuery = useSelector((state: RootState) => state.search.bookings);
 
   const fetchBookings = async () => {

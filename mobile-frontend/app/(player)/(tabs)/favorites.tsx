@@ -67,7 +67,7 @@ export default function PlayerFavoritesScreen() {
                 <IconSymbol name="heart" size={24} color="#22C55E" />
              </View>
             <Text className="text-slate-400 dark:text-slate-500 text-center font-medium">
-              You haven't added any favorite stadiums yet. Add them from the stadium details page!
+              You haven&apos;t added any favorite stadiums yet. Add them from the stadium details page!
             </Text>
           </View>
         }

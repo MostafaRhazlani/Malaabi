@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, ActivityIndicator, FlatList } from 'react-native';
 import { useStadiums } from '@/hooks/use-stadiums';
 import { StadiumCard } from '@/components/staduim-card';
 

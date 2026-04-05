@@ -1,5 +1,3 @@
-import type { PropsWithChildren, ReactElement } from 'react';
-
 import Animated, {
   interpolate,
   useAnimatedRef,

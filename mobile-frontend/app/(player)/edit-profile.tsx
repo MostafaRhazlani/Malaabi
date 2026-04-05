@@ -20,7 +20,7 @@ import { UserService } from '@/services/user.service';
 import { BASE_URL } from '@/services/api';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { IconSymbol, IconSymbolName } from '@/components/ui/icon-symbol';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 
 const getAvatarUri = (profileImg?: string | null) => {

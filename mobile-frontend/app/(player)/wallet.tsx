@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ export default function PlayerWalletScreen() {
   const [isTopUpVisible, setTopUpVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchWalletData = async () => {
+  const fetchWalletData = useCallback(async () => {
     try {
       const walletData = await WalletService.getWallet();
       dispatch(setWallet({
@@ -38,16 +38,16 @@ export default function PlayerWalletScreen() {
     } catch (error) {
       console.error('Failed to fetch wallet:', error);
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchWalletData();
-  }, []);
+    void fetchWalletData();
+  }, [fetchWalletData]);
 
   useFocusEffect(
-    React.useCallback(() => {
-      fetchWalletData();
-    }, []),
+    useCallback(() => {
+      void fetchWalletData();
+    }, [fetchWalletData]),
   );
 
   const onRefresh = async () => {

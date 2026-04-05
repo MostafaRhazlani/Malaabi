@@ -1,6 +1,6 @@
 // Icon component using phosphor-react-native icons
 
-import { SymbolWeight, SymbolViewProps } from 'expo-symbols';
+import { SymbolWeight } from 'expo-symbols';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 import {
   House,
@@ -21,7 +21,6 @@ import {
   CalendarPlus,
   XCircle,
   Star,
-  ArrowLeft,
   Lightning,
   Shower,
   Phone,
