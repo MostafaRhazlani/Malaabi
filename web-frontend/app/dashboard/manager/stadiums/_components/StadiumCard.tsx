@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   RiBuilding2Line,
   RiEditLine,
@@ -38,7 +39,14 @@ export default function StadiumCard({ stadium, onEditInfo, onPhotos, onDelete }:
     <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden flex flex-col">
       {cover ? (
         <div className="relative h-32 w-full overflow-hidden">
-          <img src={cover} alt={stadium.name} className="w-full h-full object-cover" />
+          <Image
+            src={cover}
+            alt={stadium.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+            unoptimized
+          />
           {stadium.images.length > 1 && (
             <span className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
               +{stadium.images.length - 1} more

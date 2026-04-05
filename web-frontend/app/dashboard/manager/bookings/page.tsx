@@ -27,17 +27,19 @@ export default function ManagerBookingsPage() {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    setLoading(true);
     ManagerService.getBookings({ page, limit: 10, status: status || undefined })
       .then((res) => {
         setBookings(res.data);
         setTotalPages(res.totalPages);
+        setError(null);
       })
       .catch(() => setError("Failed to load bookings."))
       .finally(() => setLoading(false));
   }, [page, status]);
 
   function handleFilterChange(val: string) {
+    setLoading(true);
+    setError(null);
     setStatus(val);
     setPage(1);
   }
@@ -142,7 +144,11 @@ export default function ManagerBookingsPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              setPage((p) => Math.max(1, p - 1));
+            }}
             disabled={page === 1}
             className="px-3 py-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 text-sm transition-colors"
           >
@@ -152,7 +158,11 @@ export default function ManagerBookingsPage() {
             Page {page} / {totalPages}
           </span>
           <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              setPage((p) => Math.min(totalPages, p + 1));
+            }}
             disabled={page === totalPages}
             className="px-3 py-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-30 text-sm transition-colors"
           >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import {
   RiAddLine,
   RiBuilding2Line,
@@ -94,7 +95,14 @@ export default function PhotosModal({ stadium, onUpload, onDeletePhoto, onClose 
             <div className="grid grid-cols-3 gap-2">
               {current.images.map((url, i) => (
                 <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-white/5">
-                  <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                  <Image
+                    src={url}
+                    alt={`Photo ${i + 1}`}
+                    fill
+                    sizes="160px"
+                    className="object-cover"
+                    unoptimized
+                  />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
                   <button
                     onClick={() => handleDeletePhoto(url)}
@@ -146,7 +154,15 @@ export default function PhotosModal({ stadium, onUpload, onDeletePhoto, onClose 
                 const url = URL.createObjectURL(file);
                 return (
                   <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-white/5">
-                    <img src={url} onLoad={() => URL.revokeObjectURL(url)} alt={file.name} className="w-full h-full object-cover" />
+                    <Image
+                      src={url}
+                      onLoad={() => URL.revokeObjectURL(url)}
+                      alt={file.name}
+                      fill
+                      sizes="120px"
+                      className="object-cover"
+                      unoptimized
+                    />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
                     <button
                       onClick={(e) => { e.stopPropagation(); removeFile(i); }}

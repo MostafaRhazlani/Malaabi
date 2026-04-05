@@ -59,7 +59,6 @@ export default function AdminUsersPage() {
   const { users, total, totalPages, status: storeStatus, error } = useAppSelector(
     (state) => state.adminUsers
   );
-  const currentUserId = useAppSelector((state) => state.auth.user?.user_id);
   const loading = storeStatus === 'idle' || storeStatus === 'loading';
 
   const [page, setPage] = useState(1);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { RiAddLine, RiCloseLine, RiUploadCloud2Line } from "@remixicon/react";
 import { toast } from "sonner";
 import type { CreateStadiumPayload } from "@/services/manager/apis";
@@ -151,7 +152,7 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
                 type="time"
                 value={form.startTime}
                 onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 [color-scheme:dark]"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 scheme-dark"
               />
             </div>
             <div>
@@ -160,7 +161,7 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
                 type="time"
                 value={form.endTime}
                 onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 [color-scheme:dark]"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 scheme-dark"
               />
             </div>
           </div>
@@ -225,7 +226,15 @@ export default function CreateStadiumModal({ onCreate, onClose }: Props) {
                   const url = URL.createObjectURL(file);
                   return (
                     <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-white/5">
-                      <img src={url} onLoad={() => URL.revokeObjectURL(url)} alt={file.name} className="w-full h-full object-cover" />
+                        <Image
+                          src={url}
+                          onLoad={() => URL.revokeObjectURL(url)}
+                          alt={file.name}
+                          fill
+                          sizes="120px"
+                          className="object-cover"
+                          unoptimized
+                        />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
                       <button
                         type="button"
