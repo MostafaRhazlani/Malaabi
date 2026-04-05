@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: malaabi-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - malaabi-network
+
+  backend:
+    build:
+      context: ./backend
+    container_name: malaabi-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+    depends_on:
+      - db
+    networks:
+      - malaabi-network
+
+  web-frontend:
+    build:
+      context: ./web-frontend
+    container_name: malaabi-web
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    networks:
+      - malaabi-network
+
+  mobile-frontend:
+    build:
+      context: ./mobile-frontend
+    container_name: malaabi-mobile
+    ports:
+      - "8081:8081"
+    environment:
+      - EXPO_PUBLIC_API_URL=${NGROK_URL}
+    networks:
+      - malaabi-network
+
+networks:
+  malaabi-network:
+    driver: bridge
+
+volumes:
+  pgdata:
