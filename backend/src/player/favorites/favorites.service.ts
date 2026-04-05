@@ -28,7 +28,9 @@ export class PlayerFavoritesService {
     } else {
       // Add to favorites
       // First verify stadium exists
-      const stadium = await this.prisma.stadium.findUnique({ where: { id: stadiumId } });
+      const stadium = await this.prisma.stadium.findUnique({
+        where: { id: stadiumId },
+      });
       if (!stadium) throw new NotFoundException('Stadium not found');
 
       return this.prisma.user.update({
@@ -49,12 +51,12 @@ export class PlayerFavoritesService {
         favoriteStadiums: {
           include: {
             manager: {
-                select: {
-                    first_name: true,
-                    last_name: true,
-                }
-            }
-          }
+              select: {
+                first_name: true,
+                last_name: true,
+              },
+            },
+          },
         },
       },
     });

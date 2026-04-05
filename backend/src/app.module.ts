@@ -20,6 +20,6 @@ import { GuardModule } from './guard/guard.module';
     GuardModule,
   ],
   controllers: [],
-  providers: []
+  providers: [],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+// import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.repository';
 import { UploadService } from '../upload/upload.service';
@@ -11,9 +11,9 @@ export class UserService {
     private readonly uploadService: UploadService,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+  // create(createUserDto: CreateUserDto) {
+  //   return 'This action adds a new user';
+  // }
 
   findAll() {
     return this.userRepository.findAll();
@@ -37,7 +37,10 @@ export class UserService {
       await this.uploadService.deleteFile(user.profile_img);
     }
 
-    const profile_img = await this.uploadService.saveFile(`profiles/${id}`, file);
+    const profile_img = await this.uploadService.saveFile(
+      `profiles/${id}`,
+      file,
+    );
     return this.userRepository.updateUser(id, { profile_img });
   }
 

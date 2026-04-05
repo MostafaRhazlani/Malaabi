@@ -4,6 +4,6 @@ import { GuardService } from './guard.service';
 
 @Module({
   controllers: [GuardController],
-  providers: [GuardService]
+  providers: [GuardService],
 })
 export class GuardModule {}

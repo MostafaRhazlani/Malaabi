@@ -3,7 +3,7 @@ import { IsNumber, IsPositive, IsString, IsOptional } from 'class-validator';
 export class TopUpDto {
   @IsNumber()
   @IsPositive()
-  amount: number;
+  amount!: number;
 
   @IsOptional()
   @IsString()

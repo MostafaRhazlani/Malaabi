@@ -4,5 +4,5 @@ import { StadiumStatus } from 'generated/prisma/enums';
 export class UpdateStadiumStatusDto {
   @IsNotEmpty()
   @IsEnum(StadiumStatus)
-  status: StadiumStatus;
+  status!: StadiumStatus;
 }

@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { BookingStatus } from 'generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -9,32 +13,32 @@ export class GuardService {
   async findMyStadium(guardId: string) {
     const guard = await this.prisma.user.findUnique({
       where: { id: guardId },
-      select: { assignedStadiumId: true }
+      select: { assignedStadiumId: true },
     });
-    
+
     if (!guard?.assignedStadiumId) {
-       throw new BadRequestException('You are not assigned to any stadium');
+      throw new BadRequestException('You are not assigned to any stadium');
     }
     return guard.assignedStadiumId;
   }
 
   async findAllBookings(guardId: string) {
     const stadiumId = await this.findMyStadium(guardId);
-    
+
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
 
     return this.prisma.booking.findMany({
       where: {
         stadiumId,
-        scheduledAt: { gte: today }
+        scheduledAt: { gte: today },
       },
       include: {
         player: {
-          select: { first_name: true, last_name: true, profile_img: true }
-        }
+          select: { first_name: true, last_name: true, profile_img: true },
+        },
       },
-      orderBy: { scheduledAt: 'desc' }
+      orderBy: { scheduledAt: 'desc' },
     });
   }
 
@@ -43,7 +47,7 @@ export class GuardService {
 
     const booking = await this.prisma.booking.findUnique({
       where: { verificationToken: token },
-      include: { stadium: true }
+      include: { stadium: true },
     });
 
     if (!booking) {
@@ -58,14 +62,19 @@ export class GuardService {
       throw new BadRequestException('Ticket already verified and used');
     }
 
-    if (booking.status === BookingStatus.CANCELLED || booking.status === BookingStatus.EXPIRED) {
-      throw new BadRequestException(`Ticket is ${booking.status.toLowerCase()}`);
+    if (
+      booking.status === BookingStatus.CANCELLED ||
+      booking.status === BookingStatus.EXPIRED
+    ) {
+      throw new BadRequestException(
+        `Ticket is ${booking.status.toLowerCase()}`,
+      );
     }
 
     return this.prisma.booking.update({
       where: { id: booking.id },
       data: { status: BookingStatus.CONFIRMED },
-      include: { player: true }
+      include: { player: true },
     });
   }
 }

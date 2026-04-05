@@ -12,7 +12,7 @@ import { Transform } from 'class-transformer';
 export class CreateTeamDto {
   @ApiProperty()
   @IsString()
-  name: string;
+  name!: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -23,11 +23,18 @@ export class CreateTeamDto {
   @IsInt()
   @Min(5)
   @Max(20)
-  @Transform(({ value }) => parseInt(value, 10))
-  maxMembers: number;
+  @Transform(({ value }: { value: unknown }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return Number.parseInt(String(value), 10);
+  })
+  maxMembers!: number;
 
   @ApiProperty({ default: true })
   @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
-  isPublic: boolean;
+  @Transform(
+    ({ value }: { value: unknown }) => value === 'true' || value === true,
+  )
+  isPublic!: boolean;
 }

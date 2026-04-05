@@ -98,10 +98,12 @@ export class ManagerStatsService {
         weeklyMap.set(key, (weeklyMap.get(key) ?? 0) + booking.totalAmount);
       }
     }
-    const weeklyIncome = Array.from(weeklyMap.entries()).map(([date, amount]) => ({
-      date,
-      amount,
-    }));
+    const weeklyIncome = Array.from(weeklyMap.entries()).map(
+      ([date, amount]) => ({
+        date,
+        amount,
+      }),
+    );
 
     return {
       totalRevenue: revenue._sum.totalAmount ?? 0,

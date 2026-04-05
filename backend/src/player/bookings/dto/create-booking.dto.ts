@@ -4,13 +4,13 @@ import { MatchType } from 'generated/prisma/enums';
 export class CreateBookingDto {
   @IsString()
   @IsNotEmpty()
-  stadiumId: string;
+  stadiumId!: string;
 
   @IsDateString()
   @IsNotEmpty()
-  scheduledAt: string;
+  scheduledAt!: string;
 
   @IsEnum(MatchType)
   @IsNotEmpty()
-  matchType: MatchType;
+  matchType!: MatchType;
 }

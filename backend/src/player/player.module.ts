@@ -8,7 +8,13 @@ import { PlayerBookingsModule } from './bookings/bookings.module';
 import { PlayerFavoritesModule } from './favorites/favorites.module';
 
 @Module({
-  imports: [PrismaModule, TeamsModule, WalletModule, PlayerBookingsModule, PlayerFavoritesModule],
+  imports: [
+    PrismaModule,
+    TeamsModule,
+    WalletModule,
+    PlayerBookingsModule,
+    PlayerFavoritesModule,
+  ],
   controllers: [PlayerStadiumsController],
   providers: [PlayerStadiumsService],
 })

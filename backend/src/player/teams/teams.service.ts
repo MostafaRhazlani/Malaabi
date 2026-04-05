@@ -344,7 +344,7 @@ export class TeamsService {
     }
 
     // Map members to include a single 'team' object for the frontend
-    const mappedMembers = team.members.map((member: any) => {
+    const mappedMembers = team.members.map((member) => {
       const { teams, ledTeams, ...rest } = member;
       return {
         ...rest,
@@ -389,7 +389,7 @@ export class TeamsService {
       },
     });
 
-    return players.map((player: any) => {
+    return players.map((player) => {
       const { teams, ledTeams, ...rest } = player;
       return {
         ...rest,

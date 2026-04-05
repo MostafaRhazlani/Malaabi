@@ -12,15 +12,15 @@ import { StadiumType } from 'generated/prisma/enums';
 export class CreateStadiumDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
-  city: string;
+  city!: string;
 
   @IsString()
   @IsNotEmpty()
-  address: string;
+  address!: string;
 
   @IsEnum(StadiumType)
   @IsOptional()
@@ -56,4 +56,3 @@ export class CreateStadiumDto {
   @IsOptional()
   endTime?: string;
 }
-

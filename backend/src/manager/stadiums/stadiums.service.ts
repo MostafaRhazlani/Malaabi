@@ -170,4 +170,3 @@ export class ManagerStadiumsService {
     await this.upload.deleteFolder(`stadiums/${id}`);
   }
 }
-
