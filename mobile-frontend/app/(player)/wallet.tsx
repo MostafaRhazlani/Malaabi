@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -43,6 +43,12 @@ export default function PlayerWalletScreen() {
   useEffect(() => {
     fetchWalletData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchWalletData();
+    }, []),
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);

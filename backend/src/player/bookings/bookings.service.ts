@@ -1,11 +1,95 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { TransactionType, BookingStatus, StadiumStatus, MatchType } from 'generated/prisma/enums';
+import {
+  TransactionType,
+  BookingStatus,
+  StadiumStatus,
+  MatchType,
+} from 'generated/prisma/enums';
 
 @Injectable()
 export class PlayerBookingsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private async settleNoShowForHalfMatches() {
+    const expiryWindowMs = 15 * 60 * 1000;
+    const cutoff = new Date(Date.now() - expiryWindowMs);
+
+    // Expire pending bookings that passed the grace period.
+    await this.prisma.booking.updateMany({
+      where: {
+        status: BookingStatus.PENDING,
+        scheduledAt: { lt: cutoff },
+      },
+      data: { status: BookingStatus.EXPIRED },
+    });
+
+    // Refund HALF bookings that were confirmed while their opponent expired.
+    const confirmedHalfBookings = await this.prisma.booking.findMany({
+      where: {
+        status: BookingStatus.CONFIRMED,
+        matchType: MatchType.HALF,
+        scheduledAt: { lt: cutoff },
+      },
+      select: {
+        id: true,
+        playerId: true,
+        totalAmount: true,
+        stadiumId: true,
+        scheduledAt: true,
+      },
+    });
+
+    for (const myBooking of confirmedHalfBookings) {
+      const partnerBooking = await this.prisma.booking.findFirst({
+        where: {
+          stadiumId: myBooking.stadiumId,
+          scheduledAt: myBooking.scheduledAt,
+          id: { not: myBooking.id },
+          status: BookingStatus.EXPIRED,
+        },
+        select: { id: true },
+      });
+
+      if (!partnerBooking) continue;
+
+      const wallet = await this.prisma.wallet.findUnique({
+        where: { userId: myBooking.playerId },
+        select: { id: true },
+      });
+
+      if (!wallet) continue;
+
+      const refundReason = `No-Show Compensation for Match ${myBooking.id}`;
+
+      const alreadyRefunded = await this.prisma.transaction.findFirst({
+        where: { walletId: wallet.id, description: refundReason },
+        select: { id: true },
+      });
+
+      if (alreadyRefunded) continue;
+
+      await this.prisma.$transaction([
+        this.prisma.wallet.update({
+          where: { id: wallet.id },
+          data: { balance: { increment: myBooking.totalAmount } },
+        }),
+        this.prisma.transaction.create({
+          data: {
+            walletId: wallet.id,
+            amount: myBooking.totalAmount,
+            type: TransactionType.REFUND,
+            description: refundReason,
+          },
+        }),
+      ]);
+    }
+  }
 
   async create(userId: string, createBookingDto: CreateBookingDto) {
     const { stadiumId, scheduledAt, matchType } = createBookingDto;
@@ -19,7 +103,10 @@ export class PlayerBookingsService {
       throw new NotFoundException('Stadium not found or not active');
     }
 
-    const price = matchType === MatchType.FULL ? stadium.priceFullMatch : stadium.priceHalfMatch;
+    const price =
+      matchType === MatchType.FULL
+        ? stadium.priceFullMatch
+        : stadium.priceHalfMatch;
 
     if (new Date(scheduledAt).getTime() < new Date().getTime()) {
       throw new BadRequestException('Cannot book a time in the past');
@@ -42,12 +129,14 @@ export class PlayerBookingsService {
         where: {
           playerId: userId,
           scheduledAt: new Date(scheduledAt),
-          status: { not: BookingStatus.CANCELLED }
+          status: { not: BookingStatus.CANCELLED },
         },
       });
 
       if (conflictingBooking) {
-        throw new BadRequestException('You already have a booking at this time in another stadium');
+        throw new BadRequestException(
+          'You already have a booking at this time in another stadium',
+        );
       }
 
       // 5. Stadium Availability Check
@@ -55,23 +144,33 @@ export class PlayerBookingsService {
         where: {
           stadiumId,
           scheduledAt: new Date(scheduledAt),
-          status: { not: BookingStatus.CANCELLED }
-        }
+          status: { not: BookingStatus.CANCELLED },
+        },
       });
 
-      const isFullTaken = stadiumBookings.some(b => b.matchType === MatchType.FULL);
-      const halfCount = stadiumBookings.filter(b => b.matchType === MatchType.HALF).length;
+      const isFullTaken = stadiumBookings.some(
+        (b) => b.matchType === MatchType.FULL,
+      );
+      const halfCount = stadiumBookings.filter(
+        (b) => b.matchType === MatchType.HALF,
+      ).length;
 
       if (isFullTaken) {
-        throw new BadRequestException('Stadium is already fully booked for this time');
+        throw new BadRequestException(
+          'Stadium is already fully booked for this time',
+        );
       }
-      
+
       if (matchType === MatchType.FULL && halfCount > 0) {
-        throw new BadRequestException('Stadium is partially booked, only half-match is available');
+        throw new BadRequestException(
+          'Stadium is partially booked, only half-match is available',
+        );
       }
 
       if (matchType === MatchType.HALF && halfCount >= 2) {
-        throw new BadRequestException('Stadium is already fully booked for this time');
+        throw new BadRequestException(
+          'Stadium is already fully booked for this time',
+        );
       }
 
       // 6. Update wallet balance
@@ -105,70 +204,7 @@ export class PlayerBookingsService {
   }
 
   async findAll(userId: string) {
-    const now = new Date();
-    const expiryWindow = 15 * 60 * 1000; // 15 mins in ms
-
-    // Auto-expire old pending bookings (past 15 mins)
-    await this.prisma.booking.updateMany({
-      where: {
-        status: BookingStatus.PENDING,
-        scheduledAt: { lt: new Date(now.getTime() - expiryWindow) },
-      },
-      data: { status: BookingStatus.EXPIRED },
-    });
-    
-    // Find half-matches where this user was CONFIRMED
-    const confirmedHalfBookings = await this.prisma.booking.findMany({
-      where: {
-        playerId: userId,
-        status: BookingStatus.CONFIRMED,
-        matchType: MatchType.HALF,
-      },
-    });
-
-    for (const myBooking of confirmedHalfBookings) {
-      // Find if there was an EXPIRED partner for this slot
-      const partnerBooking = await this.prisma.booking.findFirst({
-        where: {
-          stadiumId: myBooking.stadiumId,
-          scheduledAt: myBooking.scheduledAt,
-          id: { not: myBooking.id },
-          status: BookingStatus.EXPIRED,
-        }
-      });
-
-      if (partnerBooking) {
-        // Check if we already refunded for this booking to avoid duplicates
-        const refundReason = `No-Show Compensation for Match ${myBooking.id}`;
-        const wallet = await this.prisma.wallet.findUnique({ where: { userId } });
-        
-        if (wallet) {
-          const alreadyRefunded = await this.prisma.transaction.findFirst({
-            where: { walletId: wallet.id, description: refundReason }
-          });
-
-          if (!alreadyRefunded) {
-             const refundAmount = myBooking.totalAmount * 0.5; // 50% Refund
-             
-             await this.prisma.$transaction([
-                this.prisma.wallet.update({
-                   where: { id: wallet.id },
-                   data: { balance: { increment: refundAmount } }
-                }),
-                this.prisma.transaction.create({
-                   data: {
-                      walletId: wallet.id,
-                      amount: refundAmount,
-                      type: TransactionType.REFUND,
-                      description: refundReason
-                   }
-                })
-             ]);
-             console.log(`Refunded ${refundAmount} DH to user ${userId} for no-show opponent.`);
-          }
-        }
-      }
-    }
+    await this.settleNoShowForHalfMatches();
 
     return this.prisma.booking.findMany({
       where: { playerId: userId },
@@ -186,7 +222,12 @@ export class PlayerBookingsService {
     });
   }
 
-  async getTakenSlots(stadiumId: string, date?: string, startDate?: string, endDate?: string) {
+  async getTakenSlots(
+    stadiumId: string,
+    date?: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
     let start: Date;
     let end: Date;
 
@@ -201,7 +242,9 @@ export class PlayerBookingsService {
       end = new Date(date);
       end.setHours(23, 59, 59, 999);
     } else {
-      throw new BadRequestException('Either date or (startDate and endDate) must be provided');
+      throw new BadRequestException(
+        'Either date or (startDate and endDate) must be provided',
+      );
     }
 
     const slots = await this.prisma.booking.findMany({
@@ -246,7 +289,9 @@ export class PlayerBookingsService {
     }
 
     if (now >= booking.scheduledAt) {
-      throw new BadRequestException('Cannot cancel a match that has already started');
+      throw new BadRequestException(
+        'Cannot cancel a match that has already started',
+      );
     }
 
     // Determine refund percentage
@@ -285,7 +330,7 @@ export class PlayerBookingsService {
         message: 'Booking cancelled successfully',
         refundAmount,
         refundPercentage: refundPercentage * 100,
-        booking: updatedBooking
+        booking: updatedBooking,
       };
     });
   }

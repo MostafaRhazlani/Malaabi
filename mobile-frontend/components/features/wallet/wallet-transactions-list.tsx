@@ -32,9 +32,17 @@ export function WalletTransactionsList({ transactions }: WalletTransactionsListP
   return (
     <View className="gap-4">
       {transactions.map((transaction) => {
-        const isTopUp = transaction.type === 'TOP_UP';
-        const iconName = isTopUp ? 'plus.circle.fill' : 'minus';
-        const color = isTopUp ? '#10b981' : '#f43f5e';
+        const isCredit = transaction.type === 'TOP_UP' || transaction.type === 'REFUND';
+        const iconName = isCredit ? 'plus.circle.fill' : 'minus';
+        const color = isCredit ? '#10b981' : '#f43f5e';
+        const fallbackLabel =
+          transaction.type === 'TOP_UP'
+            ? 'Top Up'
+            : transaction.type === 'REFUND'
+              ? 'Refund'
+              : transaction.type === 'PAYMENT'
+                ? 'Payment'
+                : 'Deduction';
 
         return (
           <View
@@ -47,7 +55,7 @@ export function WalletTransactionsList({ transactions }: WalletTransactionsListP
               </View>
               <View className="flex-1 pr-2">
                 <Text className="text-slate-900 dark:text-white font-bold text-base" numberOfLines={1}>
-                  {transaction.description || (isTopUp ? 'Top Up' : 'Deduction')}
+                  {transaction.description || fallbackLabel}
                 </Text>
                 <Text className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
                   {formatDate(transaction.createdAt)}
@@ -56,8 +64,8 @@ export function WalletTransactionsList({ transactions }: WalletTransactionsListP
             </View>
 
             <View className="items-end">
-              <Text className={`text-lg font-black ${isTopUp ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
-                {isTopUp ? '+' : '-'}{formatMoney(transaction.amount)}
+              <Text className={`text-lg font-black ${isCredit ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
+                {isCredit ? '+' : '-'}{formatMoney(transaction.amount)}
               </Text>
               <View className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full mt-1">
                  <Text className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">
